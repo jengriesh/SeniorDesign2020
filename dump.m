@@ -44,4 +44,49 @@
 % hold off
 
 
-%% 
+%% 1/28/2020 trying to write nii to png file
+
+close all
+clear all
+clc
+%loads the file in 
+imfile = ('Dicom.nii.gz');
+maskfile = ('Mask.nii.gz');
+%reads the file
+impic = niftiread(imfile);
+immask = niftiread(maskfile);
+alto = 1;
+n =1;
+while n == 1
+%chooses which image in our 3D set is analyzed and extracts it
+% mask = -double(immask(:,:,alto));
+brain = mat2gray(double(impic(:,:,alto)));
+number = sprintf('mask1_slice%03d.png', alto)
+
+imwrite(brain, number)
+if alto == 2
+    n = 2;
+else 
+    alto = alto+1;
+end 
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

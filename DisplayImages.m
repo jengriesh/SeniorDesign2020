@@ -1,60 +1,86 @@
-%%
+%% Main Metrics Code -- Single View 
+% Closes all windows and clears all variables
 close all
 clear all
 clc
-%loads the file in 
-imfile = ('Dicom.nii.gz');
-maskfile = ('Mask.nii.gz');
-%reads the file
-impic = niftiread(imfile);
-immask = niftiread(maskfile);
-%Function to extract the blood vessel
-% blood_vessel = extractbloodvessel(impic, immask);
 
-no_aneurysm_slices = 0;
-ANEURYSM = 0;
-% THIS WILL GET YOU THE NUMBER OF SLICES WITH AN ANEURYSM AND EXTRACT THAT
-% NUMBER 
-for i= 1:136%extract the next image in the stack
- faloola = -double(immask(:,:, i)); %faloola is the name of the mask 
- [m, n] = size(faloola);
+%loads the image
+imfile = ('Dicom.nii.gz');
+%loads the mask
+maskfile = ('Mask.nii.gz');
+
+%Creates the brain matrix
+imbrain = niftiread(imfile);
+%Creates the mask matrix
+immask = niftiread(maskfile);
+
+%Initalize variable to count # of slices that dont have aneurysms 
+%Probably not necessary 
+non_ia_slices = 0;
+%Initalizs variable that counts slices with the aneurysms in it
+num_ia_slices = 0;
+
+
+%Pass in the mask 
+%Output array that tells what slices the aneurysm is in
+
+%binary_mask is a 3D 1s and 0s mask 
+% binary_mask = mask2bin(immask);
+% Go through all images in mask 
+for i = 1:136
+ %makes the image double so that it can be 
+mask_slice = -double(immask(:,:, i));  %makes the mask a double instead of int16
+brain(:,:,i) = double(imbrain(:,:,i)); %makes the brain a double instead of int16
+ %find dimesions of mask_slice
+ [m, n] = size(mask_slice);
+ % go through each pixel turn into zero by one binary image
  for l = 1:m
-    for o = 1:n
-        if faloola(l,o) ==  32768
-            faloola_mask(l,o) = 0;
-        else
-           faloola_mask(l,o) = 1;
-        end 
-    end
- end
-    nnz_faloola_mask = nnz(faloola_mask);
-    if nnz_faloola_mask == 0
-      no_aneurysm_slices =  no_aneurysm_slices +1;
-    else
-      ANEURYSM = ANEURYSM +1;
-      SLICE_NUMBER(ANEURYSM) = i; 
-    end
-end 
-alto = 47;%chooses which image in our 3D set is analyzed and extracts it
-mask = -double(immask(:,:,alto));
-brain = double(impic(:,:,alto));
-[m, n ] = size(brain);
-min_mask = min(mask(:,:));%takes the minimum value in the matrix of the mask and uses it for nothing right now
-brain = 32768+brain;%normalizes the brain image to get smaller pixel values
-for i = 1:m
     for j = 1:n
-        if mask(i,j) ==  32768
-            mask(i,j) = 0;
+        if mask_slice(l,j) ==  32768 %Check other images for correct thresh
+            binary_mask_i(l,j) = 0;
         else
-           mask(i,j) = 1;
+           binary_mask_i(l,j) = 1;
         end 
     end
+    
+ end
+% ia_slices = iaSlices(binary_mask);
+    % number of non-zeros in the slice
+    nnz__mask = nnz(binary_mask_i);
+    %if there are no non-zero pixels then there is no aneurysm
+    if nnz__mask == 0
+      % EXIT PROGRAM WITH NO ANUERYSM ERROR
+      non_ia_slices =  non_ia_slices +1;
+    else
+      % How many slices have aneurysm
+      num_ia_slices = num_ia_slices +1;
+      % array that keeps track ofs what slices the aneurysm is in 
+      SLICE_NUMBER(num_ia_slices) = i; 
+    end
+    binary_mask(:,:,i) = binary_mask_i;
+    
+end 
+% Pass in the array of slices that contain the aneurysms
+slices = length(SLICE_NUMBER)+10;
+SLICE_NUMBER_MIN = min(SLICE_NUMBER);
+%the code below allows the aneurysm slices to be extracted and put into one
+%mXnXi 3D image
+COUNT = 0;
+for i=1:slices
+    ia_slice = SLICE_NUMBER_MIN+i;%chooses one slice in our 3D set is analyzed and extracts i
+    binary_mask_with_aneurysm(:,:,i) = binary_mask(:,:,ia_slice); %saves all the slices of the mask with the aneurysm in i
+    brain_with_aneurysm(:,:,i) = brain(:,:,ia_slice);
+%     [m, n ] = size(brain);
+%     min_mask = min(binary_mask_with_aneurysm(:,:));%takes the minimum value in the matrix of the mask and uses it for nothing right now
+%     %MATTOGRAY easier to 
+%     brain = 32768+brain;%normalizes the brain image to get smaller pixel values
+    COUNT = COUNT +1;
 end
 %searches for where the nonzeros are and records their location in the
 %values x and y
-[y x] = find(mask);
+[y,x,z] = find(binary_mask);
 %nnz_mask counts the number of non zero pixels
-nnz_mask= nnz(mask);
+nnz_mask= nnz(binary_mask);
 sizey = size(y,1);
 sizex = size(x,1);
 %search the brain image itself for the location of the aneurysm, extract a
@@ -63,7 +89,7 @@ sizex = size(x,1);
 %creates the binarized image
 for i = 1:m
     for j = 1:n
-        if brain(i,j) > 13000 %smallest pixel in the aneurysm
+        if brain(i,j) > 13000 %COULD POSSIBLY BE MI_MASK %smallest pixel in the aneurysm
             brain(i,j) = 1;
         else
            brain(i,j) = 0;
@@ -72,6 +98,8 @@ for i = 1:m
 end
 %needs to auto populate the for statements with the location of the
 %aneurysm
+
+%from the location of the mask which is stored x and y 
 for i = 256:261
     for j = 160:169
         if brain(i,j) ~= 0
@@ -81,4 +109,3 @@ for i = 256:261
  
     end
 end
-
