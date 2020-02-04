@@ -62,7 +62,7 @@ ia_slices = iaSlices(binary_mask);
 % Pass in the array of slices that contain the aneurysms
 
 slices = size(ia_slices);
-for i=0:slices
+for i=1:slices
     ia_slice = i;%chooses one slice in our 3D set is analyzed and extracts it
     binary_mask = -double(binary_mask(:,:,ia_slice));
     brain = double(imbrain(:,:,ia_slice));
