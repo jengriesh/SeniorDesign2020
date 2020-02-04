@@ -64,17 +64,15 @@ slices = length(SLICE_NUMBER)+10;
 SLICE_NUMBER_MIN = min(SLICE_NUMBER);
 %the code below allows the aneurysm slices to be extracted and put into one
 %mXnXi 3D image
-%%%%%%we still need to add 5 before and 5 after the numbers in SLICE_NUMBER
-%%%%%%to create the 5 before aneurysm and 5 after aneurysm 3D image 
 COUNT = 0;
 for i=1:slices
-    ia_slice = SLICE_NUMBER_MIN+i;%chooses one slice in our 3D set is analyzed and extracts it
-    binary_mask_with_aneurysm(:,:,i) = binary_mask(:,:,ia_slice);
-    brain = double(imbrain(:,:,ia_slice));
-    [m, n ] = size(brain);
-    min_mask = min(binary_mask_with_aneurysm(:,:));%takes the minimum value in the matrix of the mask and uses it for nothing right now
-    %MATTOGRAY easier to 
-    brain = 32768+brain;%normalizes the brain image to get smaller pixel values
+    ia_slice = SLICE_NUMBER_MIN+i;%chooses one slice in our 3D set is analyzed and extracts i
+    binary_mask_with_aneurysm(:,:,i) = binary_mask(:,:,ia_slice); %saves all the slices of the mask with the aneurysm in i
+    brain_with_aneurysm(:,:,i) = brain(:,:,ia_slice);
+%     [m, n ] = size(brain);
+%     min_mask = min(binary_mask_with_aneurysm(:,:));%takes the minimum value in the matrix of the mask and uses it for nothing right now
+%     %MATTOGRAY easier to 
+%     brain = 32768+brain;%normalizes the brain image to get smaller pixel values
     COUNT = COUNT +1;
 end
 %searches for where the nonzeros are and records their location in the
