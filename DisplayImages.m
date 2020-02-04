@@ -35,6 +35,7 @@ else
   SLICE_NUMBER(ANEURYSM) = i; 
 end
 end 
+
 alto = 47;%chooses which image in our 3D set is analyzed and extracts it
 mask = -double(immask(:,:,alto));
 brain = double(impic(:,:,alto));
