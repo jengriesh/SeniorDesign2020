@@ -16,7 +16,7 @@ ANEURYSM = 0;
 % THIS WILL GET YOU THE NUMBER OF SLICES WITH AN ANEURYSM AND EXTRACT THAT
 % NUMBER 
 for i= 1:136%extract the next image in the stack
- faloola = -double(immask(:,:, i));
+ faloola = -double(immask(:,:, i)); %faloola is the name of the mask 
  [m, n] = size(faloola);
  for l = 1:m
     for o = 1:n
@@ -27,13 +27,13 @@ for i= 1:136%extract the next image in the stack
         end 
     end
  end
-nnz_faloola_mask = nnz(faloola_mask);
-if nnz_faloola_mask == 0
-  no_aneurysm_slices =  no_aneurysm_slices +1;
-else
-  ANEURYSM = ANEURYSM +1;
-  SLICE_NUMBER(ANEURYSM) = i; 
-end
+    nnz_faloola_mask = nnz(faloola_mask);
+    if nnz_faloola_mask == 0
+      no_aneurysm_slices =  no_aneurysm_slices +1;
+    else
+      ANEURYSM = ANEURYSM +1;
+      SLICE_NUMBER(ANEURYSM) = i; 
+    end
 end 
 
 alto = 47;%chooses which image in our 3D set is analyzed and extracts it
