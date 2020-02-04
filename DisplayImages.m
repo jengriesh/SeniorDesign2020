@@ -29,7 +29,7 @@ num_ia_slices = 0;
 % Go through all images in mask 
 for i = 1:136
  %makes the image double so that it can be 
-mask_slice = -double(immask(:,:, i));  %makes the mask a double instead of int16
+mask_slice = -double(immask(:,:, i));  
 brain(:,:,i) = double(imbrain(:,:,i)); %makes the brain a double instead of int16
  %find dimesions of mask_slice
  [m, n] = size(mask_slice);
@@ -61,51 +61,77 @@ brain(:,:,i) = double(imbrain(:,:,i)); %makes the brain a double instead of int1
     
 end 
 % Pass in the array of slices that contain the aneurysms
-slices = length(SLICE_NUMBER)+10;
-SLICE_NUMBER_MIN = min(SLICE_NUMBER);
+slices = length(SLICE_NUMBER)+11;
+SLICE_NUMBER_MIN = min(SLICE_NUMBER)- 6;
 %the code below allows the aneurysm slices to be extracted and put into one
 %mXnXi 3D image
-COUNT = 0;
+post_size_x= 0; %allows the size of an array to increase
+count = 0; %code debugger to count how many aneurysm pixels in one slice
+number_of_total_aneurysm_pixels = 1; %ocunts total number of pixels that exist
 for i=1:slices
     ia_slice = SLICE_NUMBER_MIN+i;%chooses one slice in our 3D set is analyzed and extracts i
     binary_mask_with_aneurysm(:,:,i) = binary_mask(:,:,ia_slice); %saves all the slices of the mask with the aneurysm in i
     brain_with_aneurysm(:,:,i) = brain(:,:,ia_slice);
-%     [m, n ] = size(brain);
-%     min_mask = min(binary_mask_with_aneurysm(:,:));%takes the minimum value in the matrix of the mask and uses it for nothing right now
-%     %MATTOGRAY easier to 
-%     brain = 32768+brain;%normalizes the brain image to get smaller pixel values
-    COUNT = COUNT +1;
-end
-%searches for where the nonzeros are and records their location in the
-%values x and y
-[y,x,z] = find(binary_mask);
-%nnz_mask counts the number of non zero pixels
-nnz_mask= nnz(binary_mask);
-sizey = size(y,1);
-sizex = size(x,1);
-%search the brain image itself for the location of the aneurysm, extract a
-%larger area and determine the smallest pixel size to use for the threshold
-%of the new brain binarized image
-%creates the binarized image
-for i = 1:m
-    for j = 1:n
-        if brain(i,j) > 13000 %COULD POSSIBLY BE MI_MASK %smallest pixel in the aneurysm
-            brain(i,j) = 1;
-        else
-           brain(i,j) = 0;
-        end 
-    end
-end
-%needs to auto populate the for statements with the location of the
-%aneurysm
-
-%from the location of the mask which is stored x and y 
-for i = 256:261
-    for j = 160:169
-        if brain(i,j) ~= 0
-           brain_matrix(i,j) = 1;
-        else
+    [x,y]= find(binary_mask_with_aneurysm(:,:,i))
+    
+        if x >= 1   
+            size_x = length(x)
+            size_y = length(y)   
+                for a = 1:size_x
+                    for b = 1:size_y
+                        x_0 = x(b,1)
+                        y_0 = y(b,1)
+                        pixel_value(number_of_total_aneurysm_pixels) = brain_with_aneurysm(x_0,y_0,i)
+                        count = count+1;
+                        locations_x(number_of_total_aneurysm_pixels) = x_0;
+                        locations_y(number_of_total_aneurysm_pixels) = y_0;
+                        number_of_total_aneurysm_pixels = number_of_total_aneurysm_pixels+1;
+                    end
+                end
+            count = 0;
         end
- 
-    end
+    count =0;
+    l = l+1;
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%for loop to make all of the slices binary that are before, when there is
+%and after the aneurysm
+for i = 1:slices
+    for a = 1:512   %make universal by taking the size of the image eventually 
+        for b = 1:512
+            if brain_with_aneurysm(a,b,i) > min(pixel_value) %COULD POSSIBLY BE MI_MASK %smallest pixel in the aneurysm
+                brain_with_aneurysm_binary(a,b,i) = 1;
+            else
+                brain_with_aneurysm_binary(a,b,i) = 0;
+            end 
+        end
+    end
+    
+end
+
+
+% %this next line of code is to extract the location of the images
+
+saved_mask_slice_6 = binary_mask_with_aneurysm(:,:,7);
+saved_brain_slice_6 = brain_with_aneurysm(:,:,7);
+saved_brain_binary_slice_6 = brain_with_aneurysm_binary(:,:,7);
+subplot(1,2,1)
+imshow(saved_brain_slice_6,[])
+subplot(1,2,2)
+imshow(saved_brain_binary_slice_6,[])
+% % for i = 1:512
+% %     for j = 1:512
+% %         if 
+% %             
+% %         end   
+% %     end
+% % end
+% 
+% % [x2,y2]= find(binary_mask_with_aneurysm(:,:,7))
+% % [x3,y3]= find(binary_mask_with_aneurysm(:,:,8))
+% % [x4,y4]= find(binary_mask_with_aneurysm(:,:,9))
+% % [x5,y5]= find(binary_mask_with_aneurysm(:,:,10))
+% % [x6,y6]= find(binary_mask_with_aneurysm(:,:,11))
+% % [x7,y7]= find(binary_mask_with_aneurysm(:,:,12))
+% % [x8,y8]= find(binary_mask_with_aneurysm(:,:,13))
+% % [x9,y9]= find(binary_mask_with_aneurysm(:,:,14)) 
