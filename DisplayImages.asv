@@ -34,7 +34,7 @@ for i= 1:136%extract the next image in the stack
       ANEURYSM = ANEURYSM +1;
       SLICE_NUMBER(ANEURYSM) = i; 
     end
-    binary_mask(:,:,i) = faloola_mask;
+    bwmask(:,:,i) = faloola_mask(
 end 
 
 alto = 47;%chooses which image in our 3D set is analyzed and extracts it
@@ -43,12 +43,20 @@ brain = double(impic(:,:,alto));
 [m, n ] = size(brain);
 min_mask = min(mask(:,:));%takes the minimum value in the matrix of the mask and uses it for nothing right now
 brain = 32768+brain;%normalizes the brain image to get smaller pixel values
-
+for i = 1:m
+    for j = 1:n
+        if mask(i,j) ==  32768
+            mask(i,j) = 0;
+        else
+           mask(i,j) = 1;
+        end 
+    end
+end
 %searches for where the nonzeros are and records their location in the
 %values x and y
 [y x] = find(mask);
 %nnz_mask counts the number of non zero pixels
-nnz_mask= nnz(binary_mask);
+nnz_mask= nnz(mask);
 sizey = size(y,1);
 sizex = size(x,1);
 %search the brain image itself for the location of the aneurysm, extract a
