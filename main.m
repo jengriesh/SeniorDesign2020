@@ -68,6 +68,7 @@ SLICE_NUMBER_MIN = min(SLICE_NUMBER)- 6;
 post_size_x= 0; %allows the size of an array to increase
 count = 0; %code debugger to count how many aneurysm pixels in one slice
 number_of_total_aneurysm_pixels = 1; %ocunts total number of pixels that exist
+index = 0;
 for i=1:slices
     ia_slice = SLICE_NUMBER_MIN+i;%chooses one slice in our 3D set is analyzed and extracts i
     binary_mask_with_aneurysm(:,:,i) = binary_mask(:,:,ia_slice); %saves all the slices of the mask with the aneurysm in i
@@ -88,8 +89,10 @@ for i=1:slices
                         number_of_total_aneurysm_pixels = number_of_total_aneurysm_pixels+1;
                     end
                 end
-            count = 0;
+                index = index+1;
+                pixel_number_per_slice(index) = count;      
         end
+
     count =0;
     l = l+1;
 end
@@ -110,15 +113,20 @@ for i = 1:slices
 end
 
 
-% %this next line of code is to extract the location of the images
+% %this next line of code is to extract the connected componenet of the
+% location of the 
 
 saved_mask_slice_6 = binary_mask_with_aneurysm(:,:,7);
 saved_brain_slice_6 = brain_with_aneurysm(:,:,7);
 saved_brain_binary_slice_6 = brain_with_aneurysm_binary(:,:,7);
-subplot(1,2,1)
-imshow(saved_brain_slice_6,[])
-subplot(1,2,2)
-imshow(saved_brain_binary_slice_6,[])
+CC = bwconncomp(saved_brain_slice_6)
+
+% subplot(1,2,1)
+% imshow(saved_brain_slice_6,[])
+% subplot(1,2,2)
+% imshow(saved_brain_binary_slice_6,[])
+% 
+
 % % for i = 1:512
 % %     for j = 1:512
 % %         if 
