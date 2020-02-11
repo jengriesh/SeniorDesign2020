@@ -335,6 +335,34 @@ CC = bwconncomp(saved_brain_slice_6)
 % % [x7,y7]= find(binary_mask_with_aneurysm(:,:,12))
 % % [x8,y8]= find(binary_mask_with_aneurysm(:,:,13))
 % % [x9,y9]= find(binary_mask_with_aneurysm(:,:,14)) 
+%% 
+% Closes all windows and clears all variables
+close all
+clear all
+clc
+
+%loads the image
+imfile = ('Dicom.nii.gz');
+%loads the mask
+maskfile = ('Mask.nii.gz');
+
+
+view_nii(imfile);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
