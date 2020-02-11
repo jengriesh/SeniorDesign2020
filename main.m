@@ -156,7 +156,10 @@ for s = 1: slices
     blood_V = blood_vessel(:,:,s);
     over_layed = imfuse(mask, blood_V);
     overlayed_images(:,:,s) = rgb2gray(over_layed);
+    bob = overlayed_images(:,:,s);
 time = 1; %code debugger
 end
+bobbie = blood_vessel(:,:,4).*brain_with_aneurysm(:,:,4);
+% save(overlay.png, overlayed_images);
 %the overall output of this code is the grayscale images that are overlayed
 %with the bloodvessel and the aneurysm
