@@ -1,7 +1,6 @@
 %% Main Metrics Code -- Single View (updated 2/10/2020)
-% Closes all windows and clears all variables
-close all
 clear all
+close all
 clc
 %loads the image
 imfile = ('Dicom.nii.gz');
@@ -19,7 +18,7 @@ num_ia_slices = 0;
 %Pass in the mask 
 %Output array that tells what slices the aneurysm is in
 %binary_mask is a 3D 1s and 0s mask 
-% binary_mask = mask2bin(immask);
+%binary_mask = mask2bin(immask);
 % Go through all images in mask 
 for i = 1:136
  %makes the image double so that it can be 
@@ -101,7 +100,7 @@ end
 %for loop to make all of the slices binary that are before, when there is
 %and after the aneurysm. where below h is equal to the mode of the
 %pixel_values with the anuerysm.
-threshold = mode(pixel_value);
+threshold = median(pixel_value);
 %the mode, max, and min calculations below are used to extract the loaction
 %of the anuerysm in hopes of finding the bloo vessel attached to it
 mode_x = mode(locations_x);
@@ -129,13 +128,14 @@ for i = 1:slices
 %finds and labels all of the connected components with a specific pixel value, unless there are no 
 %connected components in which this function will leave the pixel value as zero       
        label = bwlabel(brain); 
+ 
        val = label(min_x, min_y); %determines the pixel values conneccted to the aneurysm
 %if the anuerysm is not on the blood vessel then the pixel value should have been 0, ...
 %so if this occurs theis while loop will keep searching until it finds a pixel value that is not zero                
-%         while  val == 0 
-%             number = number + 1;
-%             val = label(mode_x+number, mode_y+number);
-%         end 
+        while  val == 0 
+            number = number + 1;
+            val = label(mode_x+number, mode_y+number);
+        end 
 %on the brain_with_aneurysm image it keeps only the components connected to the anuerysm
         for a = 1:512
                for b = 1:512
@@ -146,6 +146,7 @@ for i = 1:slices
                    end
                end
         end
+%         imshow(blood_vessel(:,:,i),[])
         number = 0;
 %       merry = merry+1 
 end
@@ -157,9 +158,89 @@ for s = 1: slices
     over_layed = imfuse(mask, blood_V);
     overlayed_images(:,:,s) = rgb2gray(over_layed);
     bob = overlayed_images(:,:,s);
-time = 1; %code debugger
+%     imshow(bob,[]);
+    time = 44+s;
+    immy =imbrain(:,:,46);
+    faloola = imfuse(immy, bob);
+%     imshow(faloola,[]);
+%     time = 1; %code debugger
+    
 end
-bobbie = blood_vessel(:,:,4).*brain_with_aneurysm(:,:,4);
-% save(overlay.png, overlayed_images);
-%the overall output of this code is the grayscale images that are overlayed
-%with the bloodvessel and the aneurysm
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%using the overlyaed image of the blood vessel and the aneurysm
+length =0;
+horiz_count = 0;
+diag_count = 0;
+%the large for loop below allows you to check 
+for s = 1:slices
+%This for loop is to analyze all of the pixel values in one slice to find
+%the values that make up the blood vessel versus the values that make up
+%the the aneurysm
+    for a= 1:512
+        for b = 1:512  
+               if overlayed_images(a,b,s) ~= 0
+                   value = overlayed_images(a,b,s);
+               end 
+        end
+    end
+    mode_bood_vessel_pixel_value = mode(value)
+ 
+%for loop that allows you to use the blood vessel pixel values to the right
+%of the aneurysm
+    for a= 1:512
+        for b = 1:512  
+%The if statement below says:
+%if the pixel value is above zero, the pixels will be analzyed from there
+                if overlayed_images(a,b,s) > 0
+                      pixel = overlayed_images(a,b,s);   %record value at a,b,s in overlayed images
+%The if statement below says:
+%if the value above is not equal to the mode of the bloodvessel then the code will record, 
+%what location it is (pixel value should not be zero or 150)                   
+                    if  pixel ~= mode_bood_vessel_pixel_value 
+                           pixel_right =  overlayed_images(a,b+1,s); %
+                           c = 1;%sets the value for the increment to move to the right by one pixel
+                           d=1;
+                           k =0;% sets the value for the while loop
+                           j=0;
+                               if (pixel ~= pixel_right) && (pixel_right ~= 0)
+         %then if the pixel value to the right of it is not equal to 0 or the pixel value 
+         %itself, then count until it you reach a zero as implemented with the
+         %while loops below
+                                    %to search horizontallly 
+                                    while k==0
+                                        c= c+1;
+                                        pixel_right =  overlayed_images(a,b+c,s);
+                                        horiz_count = horiz_count+1 ;
+                                        if pixel_right == 0
+                                            k = 1;
+                                            horiz_length_slice = horiz_count;
+                                        end
+                                    end    
+                                    horiz_count = 0;
+           %to count in the diagonal direction                                     
+                                     while j==0
+                                        d= d+1;
+                                        pixel_diag =  overlayed_images(a+d,b+d,s);
+                                        diag_count = diag_count+1 ;
+                                        fprintf("a=%d\nb=%d\npixel=%d\npixel_right=%d\n\n\n\n", a,b, pixel, pixel_diag);                    
+                                        if pixel_diag == 0
+                                            j = 1;
+                                            diag_length_slice = diag_count;
+                                        end
+                                    end 
+                                       diag_count = 0;
+                                       poo = 1;
+                               end 
+                               
+                    end
+                end              	
+        end
+    end
+    
+    length_horizontal(s) = horiz_length_slice;
+    length_diagonal(s) = diag_length_slice;
+    
+    check =  1;
+end
+
+
