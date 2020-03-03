@@ -1,7 +1,5 @@
 %% Main Metrics Code -- Single View (updated 2/10/2020)
-clear all
-close all
-clc
+
 %loads the image
 imfile = ('Dicom.nii.gz');
 %loads the mask
