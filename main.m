@@ -164,7 +164,7 @@ for s = 1: slices
 %     imshow(faloola,[]);
 %     time = 1; %code debugger
     pasta = sprintf('BV_A_Brain00%d.png', s);
-    
+    jennaTest = '3';
     imwrite(four_d(:,:,:,s), pasta);
 end
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
