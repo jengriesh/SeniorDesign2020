@@ -198,7 +198,7 @@ close all;
                     end
             end
     end
-%code below allows the ellipse to be created *this was taken from a MATLAB forum so the    
+%code below allow   
 s = regionprops(just_BV,'Orientation','Centroid','MajorAxisLength', 'MinorAxisLength', 'Centroid')
 center = s.Centroid;
 xAmplitude = s.MinorAxisLength/2;
