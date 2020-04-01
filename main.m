@@ -174,15 +174,128 @@ for s = 1: slices
 %     imwrite(four_d(:,:,:,s), pasta);
 end
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-%% Section #: to use line tracing to try and find center
-close all;
+%% Section #: to use line tracing to try and find center of a singular slice
+% % close all;
+% % clc;
+% % %This for loop is to analyze all of the pixel values in one slice to find
+% % %the values that make up the blood vessel versus the values that make up
+% % %the the aneurysm
+% %     for a= 1:512
+% %         for b = 1:512  
+% %                if overlayed_images(a,b,5) ~= 0
+% %                    value = overlayed_images(a,b,5);
+% %                end 
+% %         end
+% %     end
+% %     mode_bood_vessel_pixel_value = mode(value);
+% % %The if statement below says:
+% % %if the pixel value is above zero, the pixels will be analzyed from there
+% %     for a= 1:512
+% %             for b = 1:512  
+% %                     if overlayed_images(a,b,5) == mode_bood_vessel_pixel_value
+% %                           just_BV(a,b) = 1;   %record value at a,b,s in overlayed images
+% %                     else
+% %                           just_BV(a,b) = 0;
+% %                     end
+% %             end
+% %     end
+% % %code below allows the ellipse to be created *this was taken from a MATLAB forum so the    
+% % s = regionprops(just_BV,'Orientation','Centroid','MajorAxisLength', 'MinorAxisLength', 'Centroid')
+% % center = s.Centroid;
+% % xAmplitude = s.MinorAxisLength/2;
+% % yAmplitude = s.MajorAxisLength/2;
+% % xCenter = center(1,1);
+% % yCenter = center(1,2);
+% % t = linspace(0, 360,1000);
+% % xOriginal = xAmplitude * sind(t) + xCenter;
+% % yOriginal = yAmplitude * cosd(t) + yCenter;
+% % rotationAngle = s.Orientation;
+% % transformMatrix = [cosd(rotationAngle), sind(rotationAngle);-sind(rotationAngle), cosd(rotationAngle)];
+% % xAligned = (xOriginal - xCenter);
+% % yAligned = (yOriginal - yCenter);
+% % xyAligned = [xAligned; yAligned]';
+% % xyRotated = xyAligned * transformMatrix;
+% % xRotated = xyRotated(:, 1) + xCenter;
+% % yRotated = xyRotated(:, 2) + yCenter;
+% % %calculation to break up the major axis into x and y components to find the
+% % %dimensions of the major axis in mm
+% % vertical   = s.MajorAxisLength * (sin(s.Orientation)) * brain_info.PixelDimensions(1,1);
+% % horizontal = s.MajorAxisLength * (cos(s.Orientation)) * brain_info.PixelDimensions(1,2);
+% % length = sqrt(vertical^2 + horizontal^2) %pythagorean theorem 
+% % 
+% % figure
+% % imshow(just_BV)
+% % hold on
+% % plot(xRotated, yRotated, 'LineWidth', 2);
+% % plot(s.Centroid(1,1), s.Centroid(1,2),'*');
+% % hold off
+%% Section #: to use line tracing to try and find center of a two slices
+% % close all;
+% % clc;
+% % %This for loop is to analyze all of the pixel values in one slice to find
+% % %the values that make up the blood vessel versus the values that make up
+% % %the the aneurysm
+% % for s = 5:6
+% %     for a= 1:512
+% %         for b = 1:512  
+% %                if overlayed_images(a,b,s) ~= 0
+% %                    value = overlayed_images(a,b,s);
+% %                end 
+% %         end
+% %     end
+% %     mode_bood_vessel_pixel_value = mode(value);
+% % %The if statement below says:
+% % %if the pixel value is above zero, the pixels will be analzyed from there
+% %     for a= 1:512
+% %             for b = 1:512  
+% %                     if overlayed_images(a,b,s) == mode_bood_vessel_pixel_value
+% %                           just_BV(a,b,s) = 1;   %record value at a,b,s in overlayed images
+% %                     else
+% %                           just_BV(a,b,s) = 0;
+% %                     end
+% %             end
+% %     end
+% % 
+% % %code below allows the ellipse to be created *this was taken from a MATLAB forum so the    
+% % stats = regionprops(just_BV(:,:,s),'Orientation','Centroid','MajorAxisLength', 'MinorAxisLength')
+% % center = stats.Centroid;
+% % xAmplitude = stats.MinorAxisLength/2;
+% % yAmplitude = stats.MajorAxisLength/2;
+% % xCenter = center(1,1);
+% % yCenter = center(1,2);
+% % t = linspace(0, 360,1000);
+% % xOriginal = xAmplitude * sind(t) + xCenter;
+% % yOriginal = yAmplitude * cosd(t) + yCenter;
+% % rotationAngle = stats.Orientation;
+% % transformMatrix = [cosd(rotationAngle), sind(rotationAngle);-sind(rotationAngle), cosd(rotationAngle)];
+% % xAligned = (xOriginal - xCenter);
+% % yAligned = (yOriginal - yCenter);
+% % xyAligned = [xAligned; yAligned]';
+% % xyRotated = xyAligned * transformMatrix;
+% % xRotated = xyRotated(:, 1) + xCenter;
+% % yRotated = xyRotated(:, 2) + yCenter;
+% % %calculation to break up the major axis into x and y components to find the
+% % %dimensions of the major axis in mm
+% % vertical   = stats.MajorAxisLength * (sin(stats.Orientation)) * brain_info.PixelDimensions(1,1);
+% % horizontal = stats.MajorAxisLength * (cos(stats.Orientation)) * brain_info.PixelDimensions(1,2);
+% % length = sqrt(vertical^2 + horizontal^2) %pythagorean theorem 
+% % 
+% % figure
+% % imshow(just_BV(:,:,s))
+% % hold on
+% % plot(xRotated, yRotated, 'LineWidth', 2);
+% % plot(stats.Centroid(1,1), stats.Centroid(1,2),'*');
+% % hold off
+% % end 
+%% using just functions to do the same as the above sections
 %This for loop is to analyze all of the pixel values in one slice to find
 %the values that make up the blood vessel versus the values that make up
 %the the aneurysm
+for s = 1:slices
     for a= 1:512
         for b = 1:512  
-               if overlayed_images(a,b,5) ~= 0
-                   value = overlayed_images(a,b,5);
+               if overlayed_images(a,b,s) ~= 0
+                   value = overlayed_images(a,b,s);
                end 
         end
     end
@@ -191,48 +304,31 @@ close all;
 %if the pixel value is above zero, the pixels will be analzyed from there
     for a= 1:512
             for b = 1:512  
-                    if overlayed_images(a,b,5) == mode_bood_vessel_pixel_value
-                          just_BV(a,b) = 1;   %record value at a,b,s in overlayed images
+                    if overlayed_images(a,b,s) == mode_bood_vessel_pixel_value
+                          just_BV(a,b,s) = 1;   %record value at a,b,s in overlayed images
                     else
-                          just_BV(a,b) = 0;
+                          just_BV(a,b,s) = 0;
                     end
             end
     end
-%code below allows the ellipse to be created *this was taken from a MATLAB forum so the    
-s = regionprops(just_BV,'Orientation','Centroid','MajorAxisLength', 'MinorAxisLength', 'Centroid')
-center = s.Centroid;
-xAmplitude = s.MinorAxisLength/2;
-yAmplitude = s.MajorAxisLength/2;
-xCenter = center(1,1);
-yCenter = center(1,2);
-t = linspace(0, 360,1000);
-xOriginal = xAmplitude * sind(t) + xCenter;
-yOriginal = yAmplitude * cosd(t) + yCenter;
-rotationAngle = s.Orientation;
-transformMatrix = [cosd(rotationAngle), sind(rotationAngle);-sind(rotationAngle), cosd(rotationAngle)];
-xAligned = (xOriginal - xCenter);
-yAligned = (yOriginal - yCenter);
-xyAligned = [xAligned; yAligned]';
-xyRotated = xyAligned * transformMatrix;
-xRotated = xyRotated(:, 1) + xCenter;
-yRotated = xyRotated(:, 2) + yCenter;
+end 
 
-vertical   = s.MajorAxisLength * (sin(s.Orientation)) * brain_info.PixelDimensions(1,1);
-horizontal = s.MajorAxisLength * (cos(s.Orientation)) * brain_info.PixelDimensions(1,2);
-
-length = sqrt(vertical^2 + horizontal^2);
+for s = 1:slices
+[MajorAxis, MinorAxis, Orientation, xRotated, yRotated, Center] = metrics(just_BV(:,:,s));
+% fprintf('MajorAxis:%f \n MinorAxis:%f \n Orientation:%f \n Center:%f', MajorAxis, MinorAxis, Orientation, Center)
+%calculation to break up the major axis into x and y components to find the
+%dimensions of the major axis in mm
+vertical   = MajorAxis* (sin(Orientation)) * brain_info.PixelDimensions(1,1);
+horizontal = MajorAxis * (cos(Orientation)) * brain_info.PixelDimensions(1,2);
+Length = sqrt(vertical^2 + horizontal^2) %pythagorean theorem 
 figure
-imshow(just_BV)
+imshow(just_BV(:,:,s))
 hold on
 plot(xRotated, yRotated, 'LineWidth', 2);
-plot(s.Centroid(1,1), s.Centroid(1,2),'*');
+plot(Center(1,1), Center(1,2),'*');
 hold off
-
-
-%% find the centroid of all of the slicesand 
-
+end 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-
 %% Section #: regionprops3 with blood vessel
 % % close all
 % % for s = 1:slices
@@ -275,10 +371,9 @@ hold off
 % % stats_BV = regionprops3(just_BV_3D, 'all')
 % % % plotcube('Pos',[stats_BV.BoundingBox])
 % % stats_BV_ANEURYSM = regionprops3(overlayed_images,'all')
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+
 %% Section #: to count to the right and diagonally to determine aneurysm size
 % %using the verlyaed image of the blood vessel and the aneurysm
 % length =0;
