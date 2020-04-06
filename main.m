@@ -165,6 +165,9 @@ for s = 1: slices
 %     time = 1; %code debugger
     pasta = sprintf('BV_A_Brain00%d.png', s);
     jennaTest = '3';
+    jennaTest2 = 4.55646;
+    jennaTest2 = num2str(jennaTest2);
+    jennaTest3 = '5.5';
     imwrite(four_d(:,:,:,s), pasta);
 end
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
