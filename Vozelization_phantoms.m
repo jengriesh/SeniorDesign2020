@@ -241,7 +241,7 @@ close all
 clear all
 clc
 %Plot the original STL mesh:
-[stlcoords] = READ_stl('Phantom_normal.stl');
+[stlcoords] = READ_stl('Aneurysm_Normal.stl');
 xco = squeeze( stlcoords(:,1,:) )';
 yco = squeeze( stlcoords(:,2,:) )';
 zco = squeeze( stlcoords(:,3,:) )';
@@ -253,7 +253,7 @@ m = 10;  %x length
 n = 10;   %y length
 r = 5;  %z length (about 5.21, rounded to 5)
 %Voxelise the STL:
-[OUTPUTgrid] = VOXELISE(m,n,r,'Phantom_normal.stl','xyz');
+[OUTPUTgrid] = VOXELISE(m,n,r,'Aneurysm_normal.stl','xyz');
 for s = 1: r
     for a = 1:m
         for b =1:n
@@ -285,8 +285,8 @@ end
     mask_info = niftiinfo('Mask.nii.gz')
     
 B = int16(B);
-niftiwrite(B, 'Phantom_normal.nii', mask_info);
-phantom_normal_info = niftiinfo('Phantom_normal.nii')
+niftiwrite(B, 'Aneurysm_Normal.nii', mask_info);
+phantom_normal_info = niftiinfo('Aneurysm_Normal.nii')
 
 figure;
 imshow3D(voxel)
@@ -319,7 +319,7 @@ close all
 clear all
 clc
 %Plot the original STL mesh:
-[stlcoords] = READ_stl('Phantom_Oval.stl');
+[stlcoords] = READ_stl('Aneurysm_Oval.stl');
 xco = squeeze( stlcoords(:,1,:) )';
 yco = squeeze( stlcoords(:,2,:) )';
 zco = squeeze( stlcoords(:,3,:) )';
@@ -331,7 +331,7 @@ m = 8;  %x length
 n = 8;   %y length
 r = 10;  %z length
 %Voxelise the STL:
-[OUTPUTgrid] = VOXELISE(m,n,r,'Phantom_Oval.stl','xyz');
+[OUTPUTgrid] = VOXELISE(m,n,r,'Aneurysm_Oval.stl','xyz');
 for s = 1: r
     for a = 1:m
         for b =1:n
@@ -363,8 +363,8 @@ end
     mask_info = niftiinfo('Mask.nii.gz')
     
 B = int16(B);
-niftiwrite(B, 'Phantom_Oval.nii', mask_info);
-phantom_normal_info = niftiinfo('Phantom_Oval.nii')
+niftiwrite(B, 'Aneurysm_Oval.nii', mask_info);
+phantom_normal_info = niftiinfo('Aneurysm_Oval.nii')
 
 figure;
 imshow3D(voxel)
@@ -397,7 +397,7 @@ close all
 clear all
 clc
 %Plot the original STL mesh:
-[stlcoords] = READ_stl('Phantom_Spline.stl');
+[stlcoords] = READ_stl('Aneurysm_Spline.stl');
 xco = squeeze( stlcoords(:,1,:) )';
 yco = squeeze( stlcoords(:,2,:) )';
 zco = squeeze( stlcoords(:,3,:) )';
@@ -409,7 +409,7 @@ m = 8;  %x length
 n = 8;   %y length
 r = 4;  %z length (about 4.17, rounded to 4)
 %Voxelise the STL:
-[OUTPUTgrid] = VOXELISE(m,n,r,'Phantom_Spline.stl','xyz');
+[OUTPUTgrid] = VOXELISE(m,n,r,'Aneurysm_Spline.stl','xyz');
 for s = 1: r
     for a = 1:m
         for b =1:n
@@ -441,8 +441,8 @@ end
     mask_info = niftiinfo('Mask.nii.gz')
     
 B = int16(B);
-niftiwrite(B, 'Phantom_Spline.nii', mask_info);
-phantom_normal_info = niftiinfo('Phantom_Spline.nii')
+niftiwrite(B, 'Aneurysm_Spline.nii', mask_info);
+phantom_normal_info = niftiinfo('Aneurysm_Spline.nii')
 
 figure;
 imshow3D(voxel)
