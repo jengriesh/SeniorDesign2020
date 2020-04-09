@@ -1,19 +1,20 @@
-close all
 clear all
+close all
 clc
+
 %Plot the original STL mesh:
 % figure
-[stlcoords] = READ_stl('Phantoom.stl');
+[stlcoords] = READ_stl('Phantom_Oval.stl');
 xco = squeeze( stlcoords(:,1,:) )';
 yco = squeeze( stlcoords(:,2,:) )';
 zco = squeeze( stlcoords(:,3,:) )';
 [hpat] = patch(xco,yco,zco,'b');
 axis equal
-m = 10;
-n = 8;
+m = 19;
+n = 15;
 r = 15; 
 %Voxelise the STL:
-[OUTPUTgrid] = VOXELISE(m,n,r,'Phantoom.stl','xyz');
+[OUTPUTgrid] = VOXELISE(m,n,r,'Phantom_Oval.stl','xyz');
 for s = 1: r
     for a = 1:m
         for b =1:n
@@ -28,9 +29,27 @@ end
 %pixel 256 --> middle of n : 4
 B = zeros(512,512,136);
 i =0;
-for s = 60:74
-    i = i +1;
-B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
+%to place the aneurysm you need to know where you want to start the
+%aneurysm placement. You start at 60 for the slice number becuase it will
+%have the middle of the blood vessel be at about the middle of the totla
+%number of slices. 
+    %starts at 60 then it goes to 60+r-1 to get the number of slices that
+    %comprise the BV
+for s = 60:74 %corresponds to value of r, it has to comprise r number of values
+    %the width starts at row 246 and goes until 246+m-1 
+    for a = 246: 264
+        %the height goes from column 248 and goes until 248+n-1
+        for b = 248: 262  
+        %the voxels don't go by the deimensions that "B" goes. SO you have
+        %to adjust the values above. so the slice will always be s-(s-1),
+        %a-(a-1) and b-(b-1)
+        s1 = s - 59;
+        a1 = a - 245;
+        b1 = b - 247;
+        %B(:,:,s) = padarray(voxel(:,:,i),[246 248], 0, 'both'); %[(up and down padding(based on m)) (left and right padding (based on  n))]
+        B(a,b,s) =  voxel(a1,b1,s1) ;   
+        end
+    end
 end
 %     loads the image
     imfile = ('Dicom.nii.gz')
@@ -42,11 +61,11 @@ end
     immask = niftiread(maskfile);
 %     information about files
     brain_info = niftiinfo('Dicom.nii.gz');
-    mask_info = niftiinfo('Mask.nii.gz')
+    mask_info = niftiinfo('Mask.nii.gz');
     
 B = int16(B);
 niftiwrite(B, 'bob.nii', mask_info);
-bob_info = niftiinfo('bob.nii')
+bob_info = niftiinfo('bob.nii');
 
 figure
 imshow3D(voxel)

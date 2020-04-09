@@ -5,57 +5,53 @@ clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section 1: Converts the  to binary
 %this section loads in 
-    %loads the image
+%loads the image and mask
     imfile = ('Dicom.nii.gz');
-    %loads the mask
     maskfile = ('Mask.nii.gz');
-    %Creates the brain matrix
+%Creates the brain and mask matrix
     imbrain = niftiread(imfile);
-    %Creates the mask matrix
     immask = niftiread(maskfile);
-    %information about files
+%information about files
     brain_info = niftiinfo('Dicom.nii.gz');
     mask_info = niftiinfo('Mask.nii.gz');
 %Initalize variable to count # of slices that dont have aneurysms 
 %Probably not necessary 
-non_ia_slices = 0;
+    non_ia_slices = 0;
 %Initalizs variable that counts slices with the aneurysms in it
-num_ia_slices = 0;
+    num_ia_slices = 0;
 %Pass in the mask 
-%Output array that tells what slices the aneurysm is in
-%binary_mask is a 3D 1s and 0s mask 
-% Go through all images in mask 
+%Output array that tells what slices the aneurysm is in binary_mask is a 3D 1s and 0s mask 
+%Go through all images in mask 
 for i = 1:136
- %makes the image double so that it can be 
-mask_slice = -double(immask(:,:, i));  
-brain(:,:,i) = double(imbrain(:,:,i)); %makes the brain a double instead of int16
- %find dimesions of mask_slice
-[m, n] = size(mask_slice);
+%makes the image double so that it can be 
+    mask_slice = -double(immask(:,:, i));  
+    brain(:,:,i) = double(imbrain(:,:,i)); %makes the brain a double instead of int16
+%find dimesions of mask_slice
+    [m, n] = size(mask_slice);
  % go through each pixel turn into zero by one binary image
-     for l = 1:m
-        for j = 1:n
-            if mask_slice(l,j) ==  32768 %Check other images for correct thresh
-               binary_mask_i(l,j) = 0;
-            else
-               binary_mask_i(l,j) = 1;
-            end 
+         for l = 1:m
+            for j = 1:n
+                if mask_slice(l,j) ==  32768 %Check other images for correct thresh
+                   binary_mask_i(l,j) = 0;
+                else
+                   binary_mask_i(l,j) = 1;
+                end 
+            end
+         end
+      binary_mask(:,:,i) = binary_mask_i;
+%number of non-zeros in the slice
+      nnz__mask = nnz(binary_mask_i);
+%if there are no non-zero pixels then there is no aneurysm
+%How many slices have aneurysm
+%array that keeps track ofs what slices the aneurysm is in 
+%EXIT PROGRAM WITH NO ANUERYSM ERROR PUT IN ONCE METRICS CODE HAS BEEN
+%COMPLETED
+        if nnz__mask == 0
+          non_ia_slices =  non_ia_slices +1;
+        else
+          num_ia_slices = num_ia_slices +1;
+          SLICE_NUMBER(num_ia_slices) = i; 
         end
-     end
-% ia_slices = iaSlices(binary_mask);
-    % number of non-zeros in the slice
-    nnz__mask = nnz(binary_mask_i);
-    %if there are no non-zero pixels then there is no aneurysm
-    if nnz__mask == 0
-      % EXIT PROGRAM WITH NO ANUERYSM ERROR
-      non_ia_slices =  non_ia_slices +1;
-    else
-      % How many slices have aneurysm
-      num_ia_slices = num_ia_slices +1;
-      % array that keeps track ofs what slices the aneurysm is in 
-      SLICE_NUMBER(num_ia_slices) = i; 
-    end
-    binary_mask(:,:,i) = binary_mask_i;
-    
 end 
 % Pass in the array of slices that contain the aneurysms
 slices = length(SLICE_NUMBER); %can edit this number to have slices before and after anuerysm
@@ -103,21 +99,22 @@ for i=1:slices
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 %% Section 2: Thresholding the brain image
-%The INPUT to this section is 
+%The INPUT to this section is:
 %for loop to make all of the slices binary that are before, when there is
 %and after the aneurysm. where below h is equal to the mode of the
 %pixel_values with the anuerysm.
-threshold = median(pixel_value);
+    threshold = median(pixel_value);
 %the mode, max, and min calculations below are used to extract the loaction
 %of the anuerysm in hopes of finding the bloo vessel attached to it
-mode_x = mode(locations_x);
-mode_y = mode(locations_y);
-max_x = max(locations_x);
-max_y = max(locations_y);
-min_x = min(locations_x);
-min_y = min(locations_y);
+    mode_x = mode(locations_x);
+    mode_y = mode(locations_y);
+    max_x = max(locations_x);
+    max_y = max(locations_y);
+    min_x = min(locations_x);
+    min_y = min(locations_y);
 %the for loop below thresholds the brain image so that it becomes binary
 for i = 1:slices
+    braini = i+44;
     for a = 1:512   %make universal by taking the size of the image eventually 
         for b = 1:512
             if brain_with_aneurysm(a,b,i) >= threshold %unsure of what the trheshold should actually be. this needs to be more looked at
@@ -127,6 +124,7 @@ for i = 1:slices
             end 
         end
     end   
+     
 end
 number = 0; %code debugger
 % this for loop allows the blood vessel to be extracted 
@@ -173,121 +171,19 @@ for s = 1: slices
     jennaTest = '3';
 %     imwrite(four_d(:,:,:,s), pasta);
 end
-% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-%% Section #: to use line tracing to try and find center of a singular slice
-% % close all;
-% % clc;
-% % %This for loop is to analyze all of the pixel values in one slice to find
-% % %the values that make up the blood vessel versus the values that make up
-% % %the the aneurysm
-% %     for a= 1:512
-% %         for b = 1:512  
-% %                if overlayed_images(a,b,5) ~= 0
-% %                    value = overlayed_images(a,b,5);
-% %                end 
-% %         end
-% %     end
-% %     mode_bood_vessel_pixel_value = mode(value);
-% % %The if statement below says:
-% % %if the pixel value is above zero, the pixels will be analzyed from there
-% %     for a= 1:512
-% %             for b = 1:512  
-% %                     if overlayed_images(a,b,5) == mode_bood_vessel_pixel_value
-% %                           just_BV(a,b) = 1;   %record value at a,b,s in overlayed images
-% %                     else
-% %                           just_BV(a,b) = 0;
-% %                     end
-% %             end
-% %     end
-% % %code below allows the ellipse to be created *this was taken from a MATLAB forum so the    
-% % s = regionprops(just_BV,'Orientation','Centroid','MajorAxisLength', 'MinorAxisLength', 'Centroid')
-% % center = s.Centroid;
-% % xAmplitude = s.MinorAxisLength/2;
-% % yAmplitude = s.MajorAxisLength/2;
-% % xCenter = center(1,1);
-% % yCenter = center(1,2);
-% % t = linspace(0, 360,1000);
-% % xOriginal = xAmplitude * sind(t) + xCenter;
-% % yOriginal = yAmplitude * cosd(t) + yCenter;
-% % rotationAngle = s.Orientation;
-% % transformMatrix = [cosd(rotationAngle), sind(rotationAngle);-sind(rotationAngle), cosd(rotationAngle)];
-% % xAligned = (xOriginal - xCenter);
-% % yAligned = (yOriginal - yCenter);
-% % xyAligned = [xAligned; yAligned]';
-% % xyRotated = xyAligned * transformMatrix;
-% % xRotated = xyRotated(:, 1) + xCenter;
-% % yRotated = xyRotated(:, 2) + yCenter;
-% % %calculation to break up the major axis into x and y components to find the
-% % %dimensions of the major axis in mm
-% % vertical   = s.MajorAxisLength * (sin(s.Orientation)) * brain_info.PixelDimensions(1,1);
-% % horizontal = s.MajorAxisLength * (cos(s.Orientation)) * brain_info.PixelDimensions(1,2);
-% % length = sqrt(vertical^2 + horizontal^2) %pythagorean theorem 
-% % 
-% % figure
-% % imshow(just_BV)
-% % hold on
-% % plot(xRotated, yRotated, 'LineWidth', 2);
-% % plot(s.Centroid(1,1), s.Centroid(1,2),'*');
-% % hold off
-%% Section #: to use line tracing to try and find center of a two slices
-% % close all;
-% % clc;
-% % %This for loop is to analyze all of the pixel values in one slice to find
-% % %the values that make up the blood vessel versus the values that make up
-% % %the the aneurysm
-% % for s = 5:6
-% %     for a= 1:512
-% %         for b = 1:512  
-% %                if overlayed_images(a,b,s) ~= 0
-% %                    value = overlayed_images(a,b,s);
-% %                end 
-% %         end
-% %     end
-% %     mode_bood_vessel_pixel_value = mode(value);
-% % %The if statement below says:
-% % %if the pixel value is above zero, the pixels will be analzyed from there
-% %     for a= 1:512
-% %             for b = 1:512  
-% %                     if overlayed_images(a,b,s) == mode_bood_vessel_pixel_value
-% %                           just_BV(a,b,s) = 1;   %record value at a,b,s in overlayed images
-% %                     else
-% %                           just_BV(a,b,s) = 0;
-% %                     end
-% %             end
-% %     end
-% % 
-% % %code below allows the ellipse to be created *this was taken from a MATLAB forum so the    
-% % stats = regionprops(just_BV(:,:,s),'Orientation','Centroid','MajorAxisLength', 'MinorAxisLength')
-% % center = stats.Centroid;
-% % xAmplitude = stats.MinorAxisLength/2;
-% % yAmplitude = stats.MajorAxisLength/2;
-% % xCenter = center(1,1);
-% % yCenter = center(1,2);
-% % t = linspace(0, 360,1000);
-% % xOriginal = xAmplitude * sind(t) + xCenter;
-% % yOriginal = yAmplitude * cosd(t) + yCenter;
-% % rotationAngle = stats.Orientation;
-% % transformMatrix = [cosd(rotationAngle), sind(rotationAngle);-sind(rotationAngle), cosd(rotationAngle)];
-% % xAligned = (xOriginal - xCenter);
-% % yAligned = (yOriginal - yCenter);
-% % xyAligned = [xAligned; yAligned]';
-% % xyRotated = xyAligned * transformMatrix;
-% % xRotated = xyRotated(:, 1) + xCenter;
-% % yRotated = xyRotated(:, 2) + yCenter;
-% % %calculation to break up the major axis into x and y components to find the
-% % %dimensions of the major axis in mm
-% % vertical   = stats.MajorAxisLength * (sin(stats.Orientation)) * brain_info.PixelDimensions(1,1);
-% % horizontal = stats.MajorAxisLength * (cos(stats.Orientation)) * brain_info.PixelDimensions(1,2);
-% % length = sqrt(vertical^2 + horizontal^2) %pythagorean theorem 
-% % 
-% % figure
-% % imshow(just_BV(:,:,s))
-% % hold on
-% % plot(xRotated, yRotated, 'LineWidth', 2);
-% % plot(stats.Centroid(1,1), stats.Centroid(1,2),'*');
-% % hold off
-% % end 
-%% using just functions to do the same as the above sections
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%% to get the slices
+for s = 1:slices
+    i = 44+s;
+        for a= 1:512
+            for b = 1:512  
+                    segment(a,b,s) = imbrain(a,b,i);
+            end
+        end
+end 
+montage(segment)
+
+%% Uses function "Metrics" to analyze the ellipse surrounding the blood vessel
 %This for loop is to analyze all of the pixel values in one slice to find
 %the values that make up the blood vessel versus the values that make up
 %the the aneurysm
@@ -311,31 +207,74 @@ for s = 1:slices
                     end
             end
     end
+    
+        for a= 1:512
+            for b = 1:512  
+                    if overlayed_images(a,b,s) ~= mode_bood_vessel_pixel_value && overlayed_images(a,b,s) ~= 0
+                          just_AN(a,b,s) = 1;   %record value at a,b,s in overlayed images
+                    else
+                          just_AN(a,b,s) = 0;
+                    end
+            end
+        end
 end 
-
+PreviousLengthAN = 0;
+PreviousLengthBV = 0;
 for s = 1:slices
-[MajorAxis, MinorAxis, Orientation, xRotated, yRotated, Center] = metrics(just_BV(:,:,s));
-% fprintf('MajorAxis:%f \n MinorAxis:%f \n Orientation:%f \n Center:%f', MajorAxis, MinorAxis, Orientation, Center)
+    [MajorAxisBV, MinorAxisBV, OrientationBV, xRotatedBV, yRotatedBV, CenterBV] = metrics(just_BV(:,:,s));
+%calculation to break up the major axis into x and y components to find the dimensions of the major axis in mm
+    verticalBV   = MajorAxisBV* (sin(OrientationBV)) * brain_info.PixelDimensions(1,1);
+    horizontalBV = MajorAxisBV * (cos(OrientationBV)) * brain_info.PixelDimensions(1,2);
+    subtractedBV = MajorAxisBV - MinorAxisBV;
+    LengthBV = sqrt(verticalBV^2 + horizontalBV^2); %pythagorean theorem 
+    fprintf("Slice Number:%f \nLength in mm:%f \nMajor-Minor:%f",s, LengthBV, subtractedBV);
+% %dislay the images
+%         figure
+%         imshow(just_BV(:,:,s))
+%         hold on
+%         plot(xRotatedBV, yRotatedBV, 'LineWidth', 2);
+%         plot(CenterBV(1,1), CenterBV(1,2),'*');
+%         hold off
+[MajorAxisAN, MinorAxisAN, OrientationAN, xRotatedAN, yRotatedAN, CenterAN] = metrics(just_AN(:,:,s));
+%fprintf('MajorAxis:%f \n MinorAxis:%f \n Orientation:%f \n Center:%f', MajorAxis, MinorAxis, Orientation, Center)
 %calculation to break up the major axis into x and y components to find the
 %dimensions of the major axis in mm
-vertical   = MajorAxis* (sin(Orientation)) * brain_info.PixelDimensions(1,1);
-horizontal = MajorAxis * (cos(Orientation)) * brain_info.PixelDimensions(1,2);
-Length = sqrt(vertical^2 + horizontal^2) %pythagorean theorem 
-figure
-imshow(just_BV(:,:,s))
-hold on
-plot(xRotated, yRotated, 'LineWidth', 2);
-plot(Center(1,1), Center(1,2),'*');
-hold off
+verticalAN   = MajorAxisAN* (sin(OrientationAN)) * mask_info.PixelDimensions(1,1);
+horizontalAN = MajorAxisAN * (cos(OrientationAN)) * mask_info.PixelDimensions(1,2);
+subtractedAN = MajorAxisAN - MinorAxisAN;
+LengthAN = sqrt(verticalAN^2 + horizontalAN^2); %pythagorean theorem 
+fprintf("Slice Number:%f \nLength in mm:%f \nMajor-Minor:%f",s, LengthAN, subtractedAN);
+% %dislay the images
+%         figure
+%         imshow(just_AN(:,:,s))
+%         hold on
+%         plot(xRotatedAN, yRotatedAN, 'LineWidth', 2);
+%         plot(CenterAN(1,1), CenterAN(1,2),'*');
+%         hold off
+
+%largest diameter:
+if LengthBV > PreviousLengthBV
+   BVLargestLength = LengthBV;  
 end 
+PreviousLengthBV = LengthBV;
+
+if LengthAN > PreviousLengthAN
+   ANLargestLength = LengthAN;  
+end 
+PreviousLengthAN = LengthAN;
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%% Size Ratio
+SizeRatio = ANLargestLength/BVLargestLength;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%% Perpendicular Height
+
 %% Section #: regionprops3 with blood vessel
 % % close all
 % % for s = 1:slices
 % % %This for loop is to analyze all of the pixel values in one slice to find
 % % %the values that make up the blood vessel versus the values that make up
-% % %the the aneurysm
-% %     
+% % %the the aneurysm  
 % %     for a= 1:512
 % %         for b = 1:512  
 % %                if overlayed_images(a,b,s) ~= 0
@@ -372,8 +311,6 @@ end
 % % % plotcube('Pos',[stats_BV.BoundingBox])
 % % stats_BV_ANEURYSM = regionprops3(overlayed_images,'all')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-
-
 %% Section #: to count to the right and diagonally to determine aneurysm size
 % %using the verlyaed image of the blood vessel and the aneurysm
 % length =0;
