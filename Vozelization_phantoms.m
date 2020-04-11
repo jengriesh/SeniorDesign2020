@@ -28,15 +28,31 @@ for s = 1: r
        end
     end
 end
-%Create zeros to pad in file:
-%slice 68 --> middle of r : 8
-%pixel 256 --> middle of m: 5
-%pixel 256 --> middle of n : 4
+
+%Zero padding
 B = zeros(512,512,136);
 i =0;
-for s = 60:74  %where aneurysm is?
-    i = i + 1;
-B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
+%to place the aneurysm you need to know where you want to start the
+%aneurysm placement. You start at 60 for the slice number becuase it will
+%have the middle of the blood vessel be at about the middle of the totla
+%number of slices. 
+    %starts at 60 then it goes to 60+r-1 to get the number of slices that
+    %comprise the BV
+for s = 60:74 %corresponds to value of r, it has to comprise r number of values
+    %the width starts at row 246 and goes until 246+m-1 
+    for a = 246: 265
+        %the height goes from column 248 and goes until 248+n-1
+        for b = 248: 262  
+        %the voxels don't go by the deimensions that "B" goes. SO you have
+        %to adjust the values above. so the slice will always be s-(s-1),
+        %a-(a-1) and b-(b-1)
+        s1 = s - 59;
+        a1 = a - 245;
+        b1 = b - 247;
+        %B(:,:,s) = padarray(voxel(:,:,i),[246 248], 0, 'both'); %[(up and down padding(based on m)) (left and right padding (based on  n))]
+        B(a,b,s) =  voxel(a1,b1,s1) ;   
+        end
+    end
 end
 %     loads the image
     imfile = ('Dicom.nii.gz');
@@ -106,15 +122,31 @@ for s = 1: r
        end
     end
 end
-%Create zeros to pad in file:
-%slice 68 --> middle of r : 8
-%pixel 256 --> middle of m: 5
-%pixel 256 --> middle of n : 4
+
+%Zero padding
 B = zeros(512,512,136);
 i =0;
-for s = 60:74
-    i = i +1;
-B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
+%to place the aneurysm you need to know where you want to start the
+%aneurysm placement. You start at 60 for the slice number becuase it will
+%have the middle of the blood vessel be at about the middle of the totla
+%number of slices. 
+    %starts at 60 then it goes to 60+r-1 to get the number of slices that
+    %comprise the BV
+for s = 60:74 %corresponds to value of r, it has to comprise r number of values
+    %the width starts at row 246 and goes until 246+m-1 
+    for a = 246: 264
+        %the height goes from column 248 and goes until 248+n-1
+        for b = 248: 262  
+        %the voxels don't go by the deimensions that "B" goes. SO you have
+        %to adjust the values above. so the slice will always be s-(s-1),
+        %a-(a-1) and b-(b-1)
+        s1 = s - 59;
+        a1 = a - 245;
+        b1 = b - 247;
+        %B(:,:,s) = padarray(voxel(:,:,i),[246 248], 0, 'both'); %[(up and down padding(based on m)) (left and right padding (based on  n))]
+        B(a,b,s) =  voxel(a1,b1,s1) ;   
+        end
+    end
 end
 %     loads the image
     imfile = ('Dicom.nii.gz');
@@ -184,15 +216,31 @@ for s = 1: r
        end
     end
 end
-%Create zeros to pad in file:
-%slice 68 --> middle of r : 8
-%pixel 256 --> middle of m: 5
-%pixel 256 --> middle of n : 4
+
+%Zero padding
 B = zeros(512,512,136);
 i =0;
-for s = 60:74
-    i = i +1;
-B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
+%to place the aneurysm you need to know where you want to start the
+%aneurysm placement. You start at 60 for the slice number becuase it will
+%have the middle of the blood vessel be at about the middle of the totla
+%number of slices. 
+    %starts at 60 then it goes to 60+r-1 to get the number of slices that
+    %comprise the BV
+for s = 60:74 %corresponds to value of r, it has to comprise r number of values
+    %the width starts at row 246 and goes until 246+m-1 
+    for a = 246: 264
+        %the height goes from column 248 and goes until 248+n-1
+        for b = 248: 262  
+        %the voxels don't go by the deimensions that "B" goes. SO you have
+        %to adjust the values above. so the slice will always be s-(s-1),
+        %a-(a-1) and b-(b-1)
+        s1 = s - 59;
+        a1 = a - 245;
+        b1 = b - 247;
+        %B(:,:,s) = padarray(voxel(:,:,i),[246 248], 0, 'both'); %[(up and down padding(based on m)) (left and right padding (based on  n))]
+        B(a,b,s) =  voxel(a1,b1,s1) ;   
+        end
+    end
 end
 %     loads the image
     imfile = ('Dicom.nii.gz');
@@ -253,7 +301,7 @@ m = 10;  %x length
 n = 10;   %y length
 r = 5;  %z length (about 5.21, rounded to 5)
 %Voxelise the STL:
-[OUTPUTgrid] = VOXELISE(m,n,r,'Aneurysm_normal.stl','xyz');
+[OUTPUTgrid] = VOXELISE(m,n,r,'Aneurysm_Normal.stl','xyz');
 for s = 1: r
     for a = 1:m
         for b =1:n
@@ -262,16 +310,14 @@ for s = 1: r
        end
     end
 end
-%Create zeros to pad in file:
-%slice 68 --> middle of r : 8
-%pixel 256 --> middle of m: 5
-%pixel 256 --> middle of n : 4
+
+%Zero padding the image
 B = zeros(512,512,136);
 i =0;
 for s = 60:74
-    i = i +1;
-B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
-end
+ i = i +1;
+% B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
+% end
 %     loads the image
     imfile = ('Dicom.nii.gz');
 %     loads the mask
