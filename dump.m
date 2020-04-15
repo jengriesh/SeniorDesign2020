@@ -349,24 +349,109 @@ maskfile = ('Mask.nii.gz');
 
 view_nii(imfile);
 
+%% 
+clear all
+close all
+clc;    % Clear the command window.
+workspace;  % Make sure the workspace panel is showing.
+clearvars;
+% format long g;
+% format compact;
+% fontSize = 20;
+% darkGreen = [0, 0.6, 0];
+% Parameterize the equation.
+t = linspace(0, 360,1000);
+xAmplitude = 1;
+yAmplitude = 2.5;
+xCenter = 2.5;
+yCenter = 5;
+xOriginal = xAmplitude * sind(t) + xCenter;
+yOriginal = yAmplitude * cosd(t) + yCenter;
+% Now plot the rotated ellipse.
+% plot(xOriginal, yOriginal, 'b-', 'LineWidth', 2);
+% axis equal
+% grid on;
+% xlabel('X', 'FontSize', fontSize);
+% ylabel('Y', 'FontSize', fontSize);
+% title('Rotated Ellipses', 'FontSize', fontSize);
+% xlim([-3, 8]);
+% ylim([-3, 8]);
+% Enlarge figure to full screen.
+% set(gcf, 'Units', 'Normalized','OuterPosition',[0 0 1 1]);
+% drawnow;
+hold on;
+% Now plot more ellipses and multiply it by a rotation matrix.
+% https://en.wikipedia.org/wiki/Rotation_matrix
+% For each angle, subtract the center, multiply by the rotation matrix and add back in the center.
+ rotationAngle = -33;
+  transformMatrix = [cosd(rotationAngle), sind(rotationAngle);...
+    -sind(rotationAngle), cosd(rotationAngle)];
+  xAligned = (xOriginal - xCenter);
+  yAligned = (yOriginal - yCenter/2);
+  xyAligned = [xAligned; yAligned]';
+  xyRotated = xyAligned * transformMatrix;
+  xRotated = xyRotated(:, 1) + xCenter;
+  yRotated = xyRotated(:, 2) + yCenter/2;
+  hold on;
+  plot(xRotated, yRotated, 'LineWidth', 2);
+ 
+  
+slope = tand(s.Orientation);
+x1 = 250;
+y1 = slope * x1 
+x2 = 260;
+y2 = slope * x2 
+figure
 
+plot(xRotated, yRotated, 'LineWidth', 2);
+hold on
+plot([abs(y1) abs(y2)], [(x1) (x2)]);
+xlim([160 170])
+ylim([255 265])
 
+%%
+% % %this section is region props to find a dameter
+% %     figure
+% %     imshow(just_BV(:,:))
+% %     hold on
+% %     stats = regionprops('table',just_BV(:,:),'BoundingBox','ConvexArea','ConvexHull')
+% %     CH = cat(1,stats.ConvexHull)
+% %     convex_hull = CH{1}
+% %     plot(convex_hull(:,1), convex_hull(:,2),'LineWidth', 2)
+% %     hold off
+% % %this section is to trace the boundary of the blood vessel using bwboundares
+% %     figure
+% %     boundaries_blood_v_bwboundaries = bwboundaries(just_BV(:,:));
+% %     imshow(just_BV(:,:))
+% %     hold on
+% %        b = boundaries_blood_v_bwboundaries{1}
+% %        pause = 1
+% %        plot(b(:,2),b(:,1),'g','LineWidth',1);
+% %     hold off
+% %     
+% % %this section uses bwtraceboundary
+% %     figure
+% %     imshow(just_BV(:,:))
+% %     hold on
+% %     bwtrace_blood_v_boundaries = bwtraceboundary(just_BV(:,:), [257 160], 'E')
+% %     plot(bwtrace_blood_v_boundaries(:,2), bwtrace_blood_v_boundaries(:,1),'g', 'LineWidth', 1);
+% %     hold off
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+%%  
+% %loads the image and mask
+%     imfile = ('Dicom.nii.gz');
+%     maskfile = ('Mask.nii.gz');
+% %Creates the brain and mask matrix
+%     imbrain = niftiread(imfile);
+%     immask = niftiread(maskfile);
+% %information about files
+%     brain_info = niftiinfo('Dicom.nii.gz');
+%     mask_info = niftiinfo('Mask.nii.gz');
+nii = load_nii('Dicom.nii.gz')
+view_nii(nii)
+   
+   
+   
+   
+   
+   
