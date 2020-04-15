@@ -162,7 +162,7 @@ end
     
 B = int16(B);
 niftiwrite(B, 'Phantom_Oval.nii', mask_info);
-phantom_normal_info = niftiinfo('Phantom_Oval.nii')
+phantom_oval_info = niftiinfo('Phantom_Oval.nii')
 
 figure;
 imshow3D(voxel)
@@ -256,7 +256,7 @@ end
     
 B = int16(B);
 niftiwrite(B, 'Phantom_Spline.nii', mask_info);
-phantom_normal_info = niftiinfo('Phantom_Spline.nii')
+phantom_spline_info = niftiinfo('Phantom_Spline.nii')
 
 figure;
 imshow3D(voxel)
@@ -298,10 +298,11 @@ axis equal
 
 %Size of image based on length of phantom
 m = 10;  %x length
-n = 10;   %y length
-r = 5;  %z length (about 5.21, rounded to 5)
+n = 5;   %y length
+r = 5;  %z length (about 5.2 rounded to 5)
+
 %Voxelise the STL:
-[OUTPUTgrid] = VOXELISE(m,n,r,'Aneurysm_Normal.stl','xyz');
+[OUTPUTgrid] = VOXELISE(m,n,r,'Phantom_Normal.stl','xyz');
 for s = 1: r
     for a = 1:m
         for b =1:n
@@ -310,14 +311,49 @@ for s = 1: r
        end
     end
 end
-
-%Zero padding the image
+%to create zeros to pad:
+%slice 68 --> middle of r : 8
+%pixel 256 --> middle of m: 5
+%pixel 256 --> middle of n : 4
 B = zeros(512,512,136);
 i =0;
-for s = 60:74
- i = i +1;
-% B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
-% end
+%to place the aneurysm you need to know where you want to start the
+%aneurysm placement. You start at 60 for the slice number becuase it will
+%have the middle of the blood vessel be at about the middle of the totla
+%number of slices. 
+    %starts at 60 then it goes to 60+r-1 to get the number of slices that
+    %comprise the BV
+for s = 60:74 %corresponds to value of r, it has to comprise r number of values
+    %the width starts at row 246 and goes until 246+m-1 
+    for a = 246: 264
+        %the height goes from column 248 and goes until 248+n-1
+        for b = 248: 262  
+        %the voxels don't go by the deimensions that "B" goes. SO you have
+        %to adjust the values above. so the slice will always be s-(s-1),
+        %a-(a-1) and b-(b-1)
+        s1 = s - 59;
+        a1 = a - 245;
+        b1 = b - 247;
+        %B(:,:,s) = padarray(voxel(:,:,i),[246 248], 0, 'both'); %[(up and down padding(based on m)) (left and right padding (based on  n))]
+        B(a,b,s) =  voxel(a1,b1,s1) ;   
+        end
+    end
+end
+
+CopyB = B(:,:,60);
+Aneurysm = zeros(512,512,136);
+for i = 60:74
+    for a = 1:512
+        for b = 1:512
+            if CopyB(a,b) == B(a,b,i)
+               Aneurysm(a,b,i) = 0;
+            else
+               Aneurysm(a,b,i) = 1;
+            end 
+            
+        end
+    end
+end
 %     loads the image
     imfile = ('Dicom.nii.gz');
 %     loads the mask
@@ -331,8 +367,11 @@ for s = 60:74
     mask_info = niftiinfo('Mask.nii.gz')
     
 B = int16(B);
-niftiwrite(B, 'Aneurysm_Normal.nii', mask_info);
-phantom_normal_info = niftiinfo('Aneurysm_Normal.nii')
+niftiwrite(B, 'Phantom_Normal.nii', mask_info);
+bob_info = niftiinfo('Phantom_Normal.nii');
+Aneurysm = int16(Aneurysm);
+niftiwrite(Aneurysm, 'Aneurysm_Normal.nii', mask_info);
+a_info = niftiinfo('Aneurysm_Normal.nii');
 
 figure;
 imshow3D(voxel)
@@ -373,11 +412,11 @@ zco = squeeze( stlcoords(:,3,:) )';
 axis equal
 
 %Size of image based on length of phantom
-m = 8;  %x length
-n = 8;   %y length
-r = 10;  %z length
+m = 10;  %x length
+n = 4;   %y length
+r = 4;  %z length (about 4.167 rounded to 4)
 %Voxelise the STL:
-[OUTPUTgrid] = VOXELISE(m,n,r,'Aneurysm_Oval.stl','xyz');
+[OUTPUTgrid] = VOXELISE(m,n,r,'Phantom_Oval.stl','xyz');
 for s = 1: r
     for a = 1:m
         for b =1:n
@@ -386,15 +425,48 @@ for s = 1: r
        end
     end
 end
-%Create zeros to pad in file:
+%to create zeros to pad:
 %slice 68 --> middle of r : 8
 %pixel 256 --> middle of m: 5
 %pixel 256 --> middle of n : 4
 B = zeros(512,512,136);
 i =0;
-for s = 60:74
-    i = i +1;
-B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
+%to place the aneurysm you need to know where you want to start the
+%aneurysm placement. You start at 60 for the slice number becuase it will
+%have the middle of the blood vessel be at about the middle of the totla
+%number of slices. 
+    %starts at 60 then it goes to 60+r-1 to get the number of slices that
+    %comprise the BV
+for s = 60:74 %corresponds to value of r, it has to comprise r number of values
+    %the width starts at row 246 and goes until 246+m-1 
+    for a = 246: 264
+        %the height goes from column 248 and goes until 248+n-1
+        for b = 248: 262  
+        %the voxels don't go by the deimensions that "B" goes. SO you have
+        %to adjust the values above. so the slice will always be s-(s-1),
+        %a-(a-1) and b-(b-1)
+        s1 = s - 59;
+        a1 = a - 245;
+        b1 = b - 247;
+        %B(:,:,s) = padarray(voxel(:,:,i),[246 248], 0, 'both'); %[(up and down padding(based on m)) (left and right padding (based on  n))]
+        B(a,b,s) =  voxel(a1,b1,s1) ;   
+        end
+    end
+end
+
+CopyB = B(:,:,60);
+Aneurysm = zeros(512,512,136);
+for i = 60:74
+    for a = 1:512
+        for b = 1:512
+            if CopyB(a,b) == B(a,b,i)
+               Aneurysm(a,b,i) = 0;
+            else
+               Aneurysm(a,b,i) = 1;
+            end 
+            
+        end
+    end
 end
 %     loads the image
     imfile = ('Dicom.nii.gz');
@@ -409,8 +481,11 @@ end
     mask_info = niftiinfo('Mask.nii.gz')
     
 B = int16(B);
-niftiwrite(B, 'Aneurysm_Oval.nii', mask_info);
-phantom_normal_info = niftiinfo('Aneurysm_Oval.nii')
+niftiwrite(B, 'Phantom_Oval.nii', mask_info);
+bob_info = niftiinfo('Phantom_Oval.nii');
+Aneurysm = int16(Aneurysm);
+niftiwrite(Aneurysm, 'Aneurysm_Oval.nii', mask_info);
+a_info = niftiinfo('Aneurysm_Oval.nii');
 
 figure;
 imshow3D(voxel)
@@ -452,8 +527,8 @@ axis equal
 
 %Size of image based on length of phantom
 m = 8;  %x length
-n = 8;   %y length
-r = 4;  %z length (about 4.17, rounded to 4)
+n = 4;   %y length
+r = 4;  %z length (about 4.167, rounded to 4)
 %Voxelise the STL:
 [OUTPUTgrid] = VOXELISE(m,n,r,'Aneurysm_Spline.stl','xyz');
 for s = 1: r
@@ -464,15 +539,49 @@ for s = 1: r
        end
     end
 end
-%Create zeros to pad in file:
+
+%to create zeros to pad:
 %slice 68 --> middle of r : 8
 %pixel 256 --> middle of m: 5
 %pixel 256 --> middle of n : 4
 B = zeros(512,512,136);
 i =0;
-for s = 60:74
-    i = i +1;
-B(:,:,s) = padarray(voxel(:,:,i),[251 252], 0, 'both');
+%to place the aneurysm you need to know where you want to start the
+%aneurysm placement. You start at 60 for the slice number becuase it will
+%have the middle of the blood vessel be at about the middle of the totla
+%number of slices. 
+    %starts at 60 then it goes to 60+r-1 to get the number of slices that
+    %comprise the BV
+for s = 60:74 %corresponds to value of r, it has to comprise r number of values
+    %the width starts at row 246 and goes until 246+m-1 
+    for a = 246: 264
+        %the height goes from column 248 and goes until 248+n-1
+        for b = 248: 262  
+        %the voxels don't go by the deimensions that "B" goes. SO you have
+        %to adjust the values above. so the slice will always be s-(s-1),
+        %a-(a-1) and b-(b-1)
+        s1 = s - 59;
+        a1 = a - 245;
+        b1 = b - 247;
+        %B(:,:,s) = padarray(voxel(:,:,i),[246 248], 0, 'both'); %[(up and down padding(based on m)) (left and right padding (based on  n))]
+        B(a,b,s) =  voxel(a1,b1,s1) ;   
+        end
+    end
+end
+
+CopyB = B(:,:,60);
+Aneurysm = zeros(512,512,136);
+for i = 60:74
+    for a = 1:512
+        for b = 1:512
+            if CopyB(a,b) == B(a,b,i)
+               Aneurysm(a,b,i) = 0;
+            else
+               Aneurysm(a,b,i) = 1;
+            end 
+            
+        end
+    end
 end
 %     loads the image
     imfile = ('Dicom.nii.gz');
@@ -487,8 +596,11 @@ end
     mask_info = niftiinfo('Mask.nii.gz')
     
 B = int16(B);
-niftiwrite(B, 'Aneurysm_Spline.nii', mask_info);
-phantom_normal_info = niftiinfo('Aneurysm_Spline.nii')
+niftiwrite(B, 'Phantom_Spline.nii', mask_info);
+bob_info = niftiinfo('Phantom_Spline.nii');
+Aneurysm = int16(Aneurysm);
+niftiwrite(Aneurysm, 'Aneurysm_Spline.nii', mask_info);
+a_info = niftiinfo('Aneurysm_Spline.nii');
 
 figure;
 imshow3D(voxel)
