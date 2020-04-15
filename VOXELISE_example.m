@@ -52,6 +52,7 @@ for s = 60:74 %corresponds to value of r, it has to comprise r number of values
     end
 end
 
+%extracts the aneurysm using information about the blood vessel
 CopyB = B(:,:,60);
 Aneurysm = zeros(512,512,136);
 for i = 60:74
@@ -68,26 +69,22 @@ for i = 60:74
 end
 
 
-%     loads the image
-    imfile = ('Dicom.nii.gz')
-%     loads the mask
-    maskfile = ('Mask.nii.gz')
-%     Creates the brain matrix
-    imbrain = niftiread(imfile);
-%     Creates the mask matrix
-    immask = niftiread(maskfile);
-%     information about files
-    brain_info = niftiinfo('Dicom.nii.gz');
-    mask_info = niftiinfo('Mask.nii.gz');
-    
+%loads things
+maskfile = ('Mask.nii.gz')
+%Creates the matrices
+immask = niftiread(maskfile);
+%information about mask
+mask_info = niftiinfo('Mask.nii.gz');
+
+%saves images into files (change the names of files as needed)
 B = int16(B);
 niftiwrite(B, 'Phantom_Oval.nii', mask_info);
 bob_info = niftiinfo('Phantom_Oval.nii');
+
 Aneurysm = int16(Aneurysm);
 niftiwrite(Aneurysm, 'Aneurysm_Oval.nii', mask_info);
 a_info = niftiinfo('Aneurysm_Oval.nii');
 
-an = niftiread(Aneurysm_Oval
 
 figure
 imshow3D(voxel)
