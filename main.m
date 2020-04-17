@@ -1,7 +1,5 @@
 %% Main Metrics Code -- Single View (updated 2/10/2020)
-clear all
-close all
-clc
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section 1: Converts the  to binary
 %this section loads in 
@@ -168,12 +166,8 @@ for s = 1: slices
 %     imshow(faloola,[]);
 %     time = 1; %code debugger
 %     pasta = sprintf('BV_A_Brain00%d.png', s);
-    jennaTest = '3';
 
-    jennaTest2 = 4.55646;
-    jennaTest2 = num2str(jennaTest2);
-    jennaTest3 = '5.5';
-    imwrite(four_d(:,:,:,s), pasta);
+    %imwrite(four_d(:,:,:,s), pasta);
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -259,18 +253,21 @@ fprintf("Slice Number:%f \nLength in mm:%f \nMajor-Minor:%f",s, LengthAN, subtra
 
 %largest diameter:
 if LengthBV > PreviousLengthBV
-   BVLargestLength = LengthBV;  
+   BVLargestLength = LengthBV;
+   GUIBVLargestLength = num2str(BVLargestLength);
 end 
 PreviousLengthBV = LengthBV;
 
 if LengthAN > PreviousLengthAN
-   ANLargestLength = LengthAN;  
+   ANLargestLength = LengthAN;
+   GUIANLargestLength = num2str(ANLargestLength);
 end 
 PreviousLengthAN = LengthAN;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %% Size Ratio
 SizeRatio = ANLargestLength/BVLargestLength;
+GUIsizeRatio = num2str(SizeRatio);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %% Perpendicular Height
 
