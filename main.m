@@ -5,29 +5,25 @@ clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section 1: Converts the  to binary
 %this section loads in 
-%loads the image and mask
-    imfile = ('Dicom.nii.gz');
-    maskfile = ('Mask.nii.gz');
-%Creates the brain and mask matrix
-    imbrain = niftiread(imfile);
-    immask = niftiread(maskfile);
-%information about files
-    brain_info = niftiinfo('Dicom.nii.gz');
-    mask_info = niftiinfo('Mask.nii.gz');
-%Initalize variable to count # of slices that dont have aneurysms 
-%Probably not necessary 
+%loads the image and mask, Creates the brain and mask matrix, Information about files
+    imfile = ('Phantom_Oval.nii');   imbrain = double(niftiread(imfile));    brain_info = niftiinfo('Phantom_Oval.nii');
+    maskfile = ('Aneurysm_Oval.nii'); immask = double(niftiread(maskfile));    mask_info = niftiinfo('Aneurysm_Oval.nii');
+
+%gets info about sizes of image    
+    imagesize = size(imbrain);
+    r = imagesize(1,3);
+    m = imagesize(1,1);
+    n = imagesize(1,2);
+
+%Initalize variables to count # of slices that dont have aneurysms and counts slices with the aneurysms in it
     non_ia_slices = 0;
-%Initalizs variable that counts slices with the aneurysms in it
     num_ia_slices = 0;
-%Pass in the mask 
-%Output array that tells what slices the aneurysm is in binary_mask is a 3D 1s and 0s mask 
-%Go through all images in mask 
-for i = 1:136
+    
+    
+for i = 1:r
 %makes the image double so that it can be 
     mask_slice = -double(immask(:,:, i));  
     brain(:,:,i) = double(imbrain(:,:,i)); %makes the brain a double instead of int16
-%find dimesions of mask_slice
-    [m, n] = size(mask_slice);
  % go through each pixel turn into zero by one binary image
          for l = 1:m
             for j = 1:n
@@ -41,11 +37,7 @@ for i = 1:136
       binary_mask(:,:,i) = binary_mask_i;
 %number of non-zeros in the slice
       nnz__mask = nnz(binary_mask_i);
-%if there are no non-zero pixels then there is no aneurysm
-%How many slices have aneurysm
-%array that keeps track ofs what slices the aneurysm is in 
-%EXIT PROGRAM WITH NO ANUERYSM ERROR PUT IN ONCE METRICS CODE HAS BEEN
-%COMPLETED
+%if there are no non-zero pixels then there is no aneurysm array that keeps track ofs what slices the aneurysm is in 
         if nnz__mask == 0
           non_ia_slices =  non_ia_slices +1;
         else
@@ -56,6 +48,7 @@ end
 % Pass in the array of slices that contain the aneurysms
 slices = length(SLICE_NUMBER); %can edit this number to have slices before and after anuerysm
 SLICE_NUMBER_MIN = min(SLICE_NUMBER)-1; %can edit this number to have slices before and after anuerysm
+firstANSlice = min(SLICE_NUMBER);
 %the code below allows the aneurysm slices to be extracted and put into one
 %mXnXi 3D image
 slice = 0; %code debugger
@@ -97,6 +90,7 @@ for i=1:slices
    
     l = l+1;
 end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 %% Section 2: Thresholding the brain image
 %The INPUT to this section is:
