@@ -680,6 +680,21 @@ for s = 60:74 %corresponds to value of r, it has to comprise r number of values
         end
     end
 end
+
+CopyB = B(:,:,60);
+Aneurysm = zeros(512,512,136);
+for i = 60:74
+    for a = 1:512
+        for b = 1:512
+            if CopyB(a,b) == B(a,b,i)
+               Aneurysm(a,b,i) = 0;
+            else
+               Aneurysm(a,b,i) = 1;
+            end 
+            
+        end
+    end
+end
 %     loads the image
     imfile = ('Dicom.nii.gz');
 %     loads the mask
@@ -694,7 +709,11 @@ end
     
 B = int16(B);
 niftiwrite(B, 'Phantom_1b.nii', mask_info);
-phantom_normal_info = niftiinfo('Phantom_1b.nii')
+bob_info = niftiinfo('Phantom_Normal.nii');
+Aneurysm = int16(Aneurysm);
+niftiwrite(Aneurysm, 'Aneurysm_1b.nii', mask_info);
+a_info = niftiinfo('Aneurysm_1b.nii');
+
 
 figure;
 imshow3D(voxel)
@@ -721,3 +740,4 @@ colormap(gray(256));
 xlabel('Y-direction');
 ylabel('X-direction');
 axis equal tight
+
