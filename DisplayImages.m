@@ -18,7 +18,6 @@ clc
     non_ia_slices = 0;
     num_ia_slices = 0;
     
-
 for i = 1:r
         binary_mask_i = immask(:,:,i);       
         nnz__mask = nnz(binary_mask_i); %number of non-zeros in the slice

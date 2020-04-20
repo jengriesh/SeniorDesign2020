@@ -1,4 +1,7 @@
-%% Main Metrics Code -- Single View (updated 2/10/2020)
+%% Main Metrics Code -- Single View 
+clear all
+close all
+clc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section 1: Converts the  to binary
