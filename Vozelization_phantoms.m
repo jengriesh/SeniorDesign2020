@@ -242,6 +242,21 @@ for s = 60:74 %corresponds to value of r, it has to comprise r number of values
         end
     end
 end
+
+CopyB = B(:,:,60);
+Aneurysm = zeros(512,512,136);
+for i = 60:74
+    for a = 1:512
+        for b = 1:512
+            if CopyB(a,b) == B(a,b,i)
+               Aneurysm(a,b,i) = 0;
+            else
+               Aneurysm(a,b,i) = 1;
+            end 
+            
+        end
+    end
+end
 %     loads the image
     imfile = ('Dicom.nii.gz');
 %     loads the mask
@@ -256,8 +271,24 @@ end
     
 B = int16(B);
 niftiwrite(B, 'Phantom_Spline.nii', mask_info);
-phantom_spline_info = niftiinfo('Phantom_Spline.nii')
+bob_info = niftiinfo('Phantom_Spline.nii');
+Aneurysm = int16(Aneurysm);
+niftiwrite(Aneurysm, 'Aneurysm_Spline.nii', mask_info);
+a_info = niftiinfo('Aneurysm_Spline.nii');
 
+
+%     loads the image
+    imfile = ('Dicom.nii.gz');
+%     loads the mask
+    maskfile = ('Mask.nii.gz');
+%     Creates the brain matrix
+    imbrain = niftiread(imfile);
+%     Creates the mask matrix
+    immask = niftiread(maskfile);
+%     information about files
+    brain_info = niftiinfo('Dicom.nii.gz');
+    mask_info = niftiinfo('Mask.nii.gz')
+    
 figure;
 imshow3D(voxel)
 
