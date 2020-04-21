@@ -1,4 +1,4 @@
-%% Main Metrics Code -- Single View (updated 2/10/2020)
+7%% Main Metrics Code -- Single View (updated 2/10/2020)
 clear all
 close all
 clc
@@ -6,7 +6,7 @@ clc
 %% Section 1: Converts the  to binary
 %loads the image and mask, Creates the brain and mask matrix, Information about files
     imfile = ('Phantom_Normal.nii');   imbrain = double(niftiread(imfile));    brain_info = niftiinfo('Phantom_Normal.nii');
-    maskfile = ('Aneurysm_normal.nii'); immask = double(niftiread(maskfile));    mask_info = niftiinfo('Aneurysm_normal.nii');
+    maskfile = ('Aneurysm_Normal.nii'); immask = double(niftiread(maskfile));    mask_info = niftiinfo('Aneurysm_normal.nii');
 
 %gets info about sizes of image    
     imagesize = size(imbrain);
@@ -131,7 +131,6 @@ end
 %% Size Ratio
 SizeRatio = ANLargestLength/BVLargestLength;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-%% Perpendicular Height
 
 %% Section #: regionprops3 with blood vessel
 close all
