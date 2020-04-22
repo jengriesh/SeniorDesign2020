@@ -1,8 +1,8 @@
-%% Main Metrics Code -- Single View 
+%% Main Metrics Code -- Single View
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section 1: Converts the  to binary
-%this section loads in 
+%this section loads in
 %loads the image and mask, Creates the brain and mask matrix, Information about files
     imfile = ('Dicom.nii.gz');   imbrain = double(niftiread(imfile));     brain_info = niftiinfo('Dicom.nii.gz');
     maskfile = ('Mask.nii.gz');  immask = double(niftiread(maskfile));    mask_info = niftiinfo('Mask.nii.gz');
@@ -18,10 +18,10 @@
     num_ia_slices = 0;
      
 for i = 1:r
-%makes the image double so that it can be 
+%makes the image double so that it can be
     mask_slice = -immask(:,:,i);  
-    brain(:,:,i) = imbrain(:,:,i); 
-    
+    brain(:,:,i) = imbrain(:,:,i);
+   
     %goes through slices to make them 0's and 1's
          for l = 1:m
             for j = 1:n
@@ -29,20 +29,20 @@ for i = 1:r
                    binary_mask_i(l,j) = 0;
                 else
                    binary_mask_i(l,j) = 1;
-                end 
+                end
             end
          end
          
       binary_mask(:,:,i) = binary_mask_i;
       nnz__mask = nnz(binary_mask_i);%number of non-zeros in the slice
-%if there are no non-zero pixels then there is no aneurysm array that keeps track ofs what slices the aneurysm is in 
+%if there are no non-zero pixels then there is no aneurysm array that keeps track ofs what slices the aneurysm is in
         if nnz__mask == 0
           non_ia_slices =  non_ia_slices +1;
         else
           num_ia_slices = num_ia_slices +1;
-          SLICE_NUMBER(num_ia_slices) = i; 
+          SLICE_NUMBER(num_ia_slices) = i;
         end
-end 
+end
 % Pass in the array of slices that contain the aneurysms
     slices = length(SLICE_NUMBER); %can edit this number to have slices before and after anuerysm
     SLICE_NUMBER_MIN = min(SLICE_NUMBER)-1; %can edit this number to have slices before and after anuerysm
@@ -55,40 +55,39 @@ end
     newx = 0;
     newy = 0;
     per_slice_count = 0;
-    
+   
 for i=1:slices
     ia_slice = SLICE_NUMBER_MIN+i;%chooses one slice in our 3D set is analyzed and extracts i
     binary_mask_with_aneurysm(:,:,i) = binary_mask(:,:,ia_slice); %saves all the slices of the mask with the aneurysm in i
     brain_with_aneurysm(:,:,i) = brain(:,:,ia_slice);
     [x,y]= find(binary_mask_with_aneurysm(:,:,i));
 
-%if there is a value in x then the if statement will run to save all of the 
+%if there is a value in x then the if statement will run to save all of the
 %informations of the locations of the aneurysm in various arrays
             %counts how many anuerysm pixels exist on the image            
             %adds #pixels to the previous number to find the exact number
             %of pixels in all of the slices that hold the aneurysm
-        
-         if x >= 1 
-            size_x = length(x); 
+       
+         if x >= 1
+            size_x = length(x);
             size_y = length(y);
             newx = size_x + newx;
             newy = size_y + newy;
-            
+           
                 for a = 1:size_x
                     locations_x(count) = x(a,1); %x locations of aneurysms in each slice
                     locations_y(count) = y(a,1); %y locations of aneurysms in each slice
                     pixel_value(count) = brain_with_aneurysm(x(a,1),y(a,1)); %pixel values of all the aneurysm locations
-                    count = count+1; 
+                    count = count+1;
                     per_slice_count = per_slice_count+1;  
-                end 
-                
+                end
+               
             slice = 1+slice;
             pixel_per_slice(slice) = per_slice_count; %number of pixels that make up the aneurysm per slice
-            per_slice_count = 0;   
-            
-         end 
+            per_slice_count = 0;  
+           
+         end
    
-
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
@@ -106,31 +105,31 @@ end
 %the for loop below thresholds the brain image so that it becomes binary
 for i = 1:slices
     braini = i+44;
-    for a = 1:512   %make universal by taking the size of the image eventually 
+    for a = 1:512   %make universal by taking the size of the image eventually
         for b = 1:512
             if brain_with_aneurysm(a,b,i) >= threshold %unsure of what the trheshold should actually be. this needs to be more looked at
                 brain_with_aneurysm_binary(a,b,i) = 1;
             else
                 brain_with_aneurysm_binary(a,b,i) = 0;
-            end 
+            end
         end
-    end   
+    end  
      
 end
 number = 0; %code debugger
-%this for loop allows the blood vessel to be extracted 
+%this for loop allows the blood vessel to be extracted
 for i = 1:slices
        brain = brain_with_aneurysm_binary(:,:,i);
-%finds and labels all of the connected components with a specific pixel value, unless there are no 
-%connected components in which this function will leave the pixel value as zero       
-       label = bwlabel(brain); 
+%finds and labels all of the connected components with a specific pixel value, unless there are no
+%connected components in which this function will leave the pixel value as zero      
+       label = bwlabel(brain);
        val = label(min_x, min_y); %determines the pixel values conneccted to the aneurysm
 %if the anuerysm is not on the blood vessel then the pixel value should have been 0, ...
 %so if this occurs theis while loop will keep searching until it finds a pixel value that is not zero                
-        while  val == 0 
+        while  val == 0
             number = number + 1;
             val = label(mode_x+number, mode_y+number);
-        end 
+        end
 %on the brain_with_aneurysm image it keeps only the components connected to the anuerysm
         for a = 1:512
                for b = 1:512
@@ -153,8 +152,8 @@ for s = 1: slices
     overlayed_images(:,:,s) = rgb2gray(over_layed);
     BV_AN_Brain = imfuse(overlayed_images(:,:,s), imbrain(:,:,v)); % put this in the GUI
     four_d(:,:,:,s) = BV_AN_Brain;%outputs a 4D image such that we can use to try and put it through a 3D viewer and have it look mildly normal
-
 end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Uses function "Metrics" to analyze the ellipse surrounding the blood vessel
 %This for loop is to analyze all of the pixel values in one slice to find
@@ -165,7 +164,7 @@ for s = 1:slices
         for b = 1:512  
                if overlayed_images(a,b,s) ~= 0
                    value = overlayed_images(a,b,s);
-               end 
+               end
         end
     end
     mode_bood_vessel_pixel_value = mode(value);
@@ -180,7 +179,7 @@ for s = 1:slices
                     end
             end
     end
-    
+   
         for a= 1:512
             for b = 1:512  
                     if overlayed_images(a,b,s) ~= mode_bood_vessel_pixel_value && overlayed_images(a,b,s) ~= 0
@@ -190,7 +189,7 @@ for s = 1:slices
                     end
             end
         end
-end 
+end
 PreviousLengthAN = 0;
 PreviousLengthBV = 0;
 for s = 1:slices
@@ -201,24 +200,26 @@ for s = 1:slices
         verticalBV   = MajorAxisBV* (sin(OrientationBV)) * brain_info.PixelDimensions(1,1);
         horizontalBV = MajorAxisBV * (cos(OrientationBV)) * brain_info.PixelDimensions(1,2);
         subtractedBV = MajorAxisBV - MinorAxisBV;
-        LengthBV = sqrt(verticalBV^2 + horizontalBV^2); %pythagorean theorem 
-        fprintf("Slice Number:%f \nLength in mm:%f \nMajor-Minor:%f",s, LengthBV, subtractedBV);
-% %dislay the images
+        LengthBV(s) = sqrt(verticalBV^2 + horizontalBV^2); %pythagorean theorem  
+       
+%         fprintf("\\nBV: Slice Number:%f \nLength in mm:%f \\n",s, LengthBV, subtractedBV);
 %         figure
 %         imshow(just_BV(:,:,s))
 %         hold on
 %         plot(xRotatedBV, yRotatedBV, 'LineWidth', 2);
 %         plot(CenterBV(1,1), CenterBV(1,2),'*');
 %         hold off
+
     %Aneurysm Cacluations
         [MajorAxisAN, MinorAxisAN, OrientationAN, xRotatedAN, yRotatedAN, CenterAN] = metrics(just_AN(:,:,s));
     %Calculation to break up the major axis into x and y components to find the dimensions of the major axis in mm
         verticalAN   = MajorAxisAN* (sin(OrientationAN)) * mask_info.PixelDimensions(1,1);
         horizontalAN = MajorAxisAN * (cos(OrientationAN)) * mask_info.PixelDimensions(1,2);
         subtractedAN = MajorAxisAN - MinorAxisAN;
-        LengthAN = sqrt(verticalAN^2 + horizontalAN^2); %pythagorean theorem 
-%         fprintf("Slice Number:%f \nLength in mm:%f \nMajor-Minor:%f",s, LengthAN, subtractedAN);
-% %dislay the images
+        LengthAN(s) = sqrt(verticalAN^2 + horizontalAN^2);%pythagorean theorem
+       
+%         fprintf("\\nAN: Slice Number:%f \nLength in mm:%f \\n ",s, LengthAN, subtractedAN);
+%         %dislay the images
 %         figure
 %         imshow(just_AN(:,:,s))
 %         hold on
@@ -226,22 +227,36 @@ for s = 1:slices
 %         plot(CenterAN(1,1), CenterAN(1,2),'*');
 %         hold off
 
-%Largest Diameter:
-    if LengthBV > PreviousLengthBV
-       BVLargestLength = LengthBV;
-    end
-    PreviousLengthBV = LengthBV;
-
-    if LengthAN > PreviousLengthAN
-       ANLargestLength = LengthAN;
-    end 
-    PreviousLengthAN = LengthAN;
 end
+%Largest Diameter:
+BVLargestLength = max(LengthBV);
+    largestBVs = find(LengthBV == BVLargestLength);
+    largestBVs = largestBVs(1,1);
+ANLargestLength = max(LengthAN);
+    largestANs = find(LengthAN == ANLargestLength);
+    largestANs = largestANs(1,1);
+   
 % Size Ratio
 SizeRatio = ANLargestLength/BVLargestLength;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Putting Metrics in GUI
 GUIBVLargestLength = num2str(BVLargestLength);
 GUIANLargestLength = num2str(ANLargestLength);
 GUIsizeRatio = num2str(SizeRatio);
+
+if largestBVs == largestANs
+    v = s+largestBVs;
+    BV_AN_Brain = imfuse(overlayed_images(:,:,largestBVs), imbrain(:,:,v));
+else
+    v = firstANSlice-1 + largestANs;
+    BV_AN_Brain = imfuse(overlayed_images(:,:,largestANs), imbrain(:,:,v));
+end
+
+%cropping the picture:
+beginningy = floor(CenterAN(1,1))- 10;
+endy = floor(CenterAN(1,1)) + 10;
+beginningx = floor(CenterAN(1,2)) - 10;
+endx = floor( CenterAN(1,2)) + 10;
+
+BV_AN_Zoomed = BV_AN_Brain(beginningx:endx, beginningy:endy, :);
