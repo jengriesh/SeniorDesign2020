@@ -217,7 +217,7 @@ for s = 1:slices
         horizontalAN = MajorAxisAN * (cos(OrientationAN)) * mask_info.PixelDimensions(1,2);
         subtractedAN = MajorAxisAN - MinorAxisAN;
         LengthAN = sqrt(verticalAN^2 + horizontalAN^2); %pythagorean theorem 
-        fprintf("Slice Number:%f \nLength in mm:%f \nMajor-Minor:%f",s, LengthAN, subtractedAN);
+%         fprintf("Slice Number:%f \nLength in mm:%f \nMajor-Minor:%f",s, LengthAN, subtractedAN);
 % %dislay the images
 %         figure
 %         imshow(just_AN(:,:,s))
