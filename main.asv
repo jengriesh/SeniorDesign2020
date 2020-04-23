@@ -6,10 +6,9 @@
 %loads the image and mask, Creates the brain and mask matrix, Information about files
 %    imfile = ('Dicom.nii.gz');  
 %    imbrain = double(niftiread(imbrain)); 
-     brain_info = niftiinfo(imbrainf);
+     brain_info = niftiinfo(imbrain);
 %    maskfile = ('Mask.nii.gz');  
-%    immask = double(niftiread(immask));    
-     mask_info = niftiinfo(immaskf);
+%    immask = double(niftiread(immask));    mask_info = niftiinfo(immask);
 
 %gets info about sizes of image    
     imagesize = size(imbrain);
@@ -108,9 +107,9 @@ end
     min_y = min(locations_y);
 %the for loop below thresholds the brain image so that it becomes binary
 for i = 1:slices
-    braini = i+SLICE_NUMBER_MIN;
-    for a = 1:m   %make universal by taking the size of the image eventually
-        for b = 1:n
+    braini = i+44;
+    for a = 1:512   %make universal by taking the size of the image eventually
+        for b = 1:512
             if brain_with_aneurysm(a,b,i) >= threshold %unsure of what the trheshold should actually be. this needs to be more looked at
                 brain_with_aneurysm_binary(a,b,i) = 1;
             else
@@ -135,8 +134,8 @@ for i = 1:slices
             val = label(mode_x+number, mode_y+number);
         end
 %on the brain_with_aneurysm image it keeps only the components connected to the anuerysm
-        for a = 1:m
-               for b = 1:n
+        for a = 1:512
+               for b = 1:512
                     if val == label(a,b)
                        blood_vessel(a,b,i) = 1;
                    else
@@ -149,7 +148,7 @@ end
 %the below for loop overlays the aneurysm mask and the blood vessel and
 %turns it into grayscale so it can all be saved as one mxnxi matrix
 for s = 1: slices
-    v = SLICE_NUMBER_MIN+s;
+    v = 44+s;
     mask  = binary_mask_with_aneurysm(:,:,s);
     blood_V = blood_vessel(:,:,s);
     over_layed = imfuse(mask, blood_V);
@@ -164,8 +163,8 @@ end
 %the values that make up the blood vessel versus the values that make up
 %the the aneurysm
 for s = 1:slices
-    for a= 1:m
-        for b = 1:n  
+    for a= 1:512
+        for b = 1:512  
                if overlayed_images(a,b,s) ~= 0
                    value = overlayed_images(a,b,s);
                end
@@ -174,8 +173,8 @@ for s = 1:slices
     mode_bood_vessel_pixel_value = mode(value);
 %The if statement below says:
 %if the pixel value is above zero, the pixels will be analzyed from there
-    for a= 1:m
-            for b = 1:n  
+    for a= 1:512
+            for b = 1:512  
                     if overlayed_images(a,b,s) == mode_bood_vessel_pixel_value
                           just_BV(a,b,s) = 1;   %record value at a,b,s in overlayed images
                     else
@@ -184,8 +183,8 @@ for s = 1:slices
             end
     end
    
-        for a= 1:m
-            for b = 1:n  
+        for a= 1:512
+            for b = 1:512  
                     if overlayed_images(a,b,s) ~= mode_bood_vessel_pixel_value && overlayed_images(a,b,s) ~= 0
                           just_AN(a,b,s) = 1;   %record value at a,b,s in overlayed images
                     else
