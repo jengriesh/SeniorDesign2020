@@ -1,20 +1,24 @@
-%% Main Metrics Code -- Single View
-
+%% Main Metrics Code
+clear all
+close all
+clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section 1: Converts the  to binary
 %this section loads in
 %loads the image and mask, Creates the brain and mask matrix, Information about files
-%    imfile = ('Dicom.nii.gz');  
-%    imbrain = double(niftiread(imbrain)); 
-     brain_info = niftiinfo(imbrainf);
-%    maskfile = ('Mask.nii.gz');  
-%    immask = double(niftiread(immask));    
-     mask_info = niftiinfo(immaskf);
+   imfile = ('Dicom.nii.gz');  
+   imbrain = (niftiread(imfile)); 
+   brain_info = niftiinfo(imfile);
+
+   maskfile = ('Mask.nii.gz');  
+   immask = (niftiread(maskfile));    
+   mask_info = niftiinfo(maskfile);
 
 %gets info about sizes of image    
+
     imagesize = size(imbrain);
     r = imagesize(1,3);
-    m = imagesize(1,1);
+    m = imagesize(1,1);   
     n = imagesize(1,2);
 
 %Initalize variables to count # of slices that dont have aneurysms and counts slices with the aneurysms in it
@@ -23,8 +27,8 @@
      
 for i = 1:r
 %makes the image double so that it can be
-    mask_slice = -immask(:,:,i);  
-    brain(:,:,i) = imbrain(:,:,i);
+    mask_slice = -double(immask(:,:,i));  
+    brain(:,:,i) = double(imbrain(:,:,i));
    
     %goes through slices to make them 0's and 1's
          for l = 1:m
@@ -120,20 +124,57 @@ for i = 1:slices
     end  
      
 end
+
 number = 0; %code debugger
+BVC = 0;
 %this for loop allows the blood vessel to be extracted
 for i = 1:slices
        brain = brain_with_aneurysm_binary(:,:,i);
 %finds and labels all of the connected components with a specific pixel value, unless there are no
 %connected components in which this function will leave the pixel value as zero      
        label = bwlabel(brain);
+% % % % %        s = regionprops(label, 'Centroid');
+% % % % %        for k = 1:numel(s)
+% % % % %             c = s(k).Centroid;
+% % % % %             text(c(1),c(2), sprintf('%d', k),...
+% % % % %             'HorizontalAlignment', 'center',...
+% % % % %             'VerticalAlignment', 'middle');
+% % % % %         end
+% % % % %         hold off
+% % % % %         number = fprintf('Number of Grains of Rice = %d\n',k);
+            
        val = label(min_x, min_y); %determines the pixel values conneccted to the aneurysm
 %if the anuerysm is not on the blood vessel then the pixel value should have been 0, ...
-%so if this occurs theis while loop will keep searching until it finds a pixel value that is not zero                
+%so if this occurs theis while loop will keep searching until it finds a pixel value that is not zero 
+if BVC == 0 
         while  val == 0
             number = number + 1;
-            val = label(mode_x+number, mode_y+number);
+            xplustest = mode_x + number;
+            yplustest = mode_y + number; 
+            
+            if xplustest > m || yplustest> n
+                number = 0;
+                
+                while val == 0;
+                    number = number +1;
+                    xminustest = max_x - number;
+                    yminustest = max_y - number;
+                    val = label(xminustest, yminustest);
+                end 
+                
+            else               
+                val = label(xplustest, yplustest);
+            end 
+        
         end
+        display(val);
+else
+    while val == 0
+        number = number + 1;
+        val = label(floor(s.Centroid(1,2)+number), floor(s.Centroid(1,1)+number));
+    end
+             
+end 
 %on the brain_with_aneurysm image it keeps only the components connected to the anuerysm
         for a = 1:m
                for b = 1:n
@@ -144,8 +185,12 @@ for i = 1:slices
                    end
                end
         end
-        number = 0;
+        s = regionprops(blood_vessel(:,:,1), 'Centroid');
+        BVC = 1;
+        imshow(blood_vessel(:,:,i));
+        number = 0;     
 end
+
 %the below for loop overlays the aneurysm mask and the blood vessel and
 %turns it into grayscale so it can all be saved as one mxnxi matrix
 for s = 1: slices
