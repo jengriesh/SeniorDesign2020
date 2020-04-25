@@ -1,18 +1,24 @@
 %% Main Metrics Code
-clear all
-close all
-clc
+% Comment out these lines if using the GUI
+% clear all
+% clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section 1: Converts the  to binary
 %this section loads in
 %loads the image and mask, Creates the brain and mask matrix, Information about files
-   imfile = ('Dicom.nii.gz');  
-   imbrain = (niftiread(imfile)); 
-   brain_info = niftiinfo(imfile);
 
-   maskfile = ('Mask.nii.gz');  
-   immask = (niftiread(maskfile));    
-   mask_info = niftiinfo(maskfile);
+% These lines are for testing without the GUI
+%    imfile = ('Dicom.nii.gz');  
+%    imbrain = (niftiread(imfile)); 
+%    brain_info = niftiinfo(imfile);
+% 
+%    maskfile = ('Mask.nii.gz');  
+%    immask = (niftiread(maskfile));    
+%    mask_info = niftiinfo(maskfile);
+
+% These lines are for using the GUI
+     brain_info = niftiinfo(imbrainf);
+     mask_info = niftiinfo(immaskf);
 
 %gets info about sizes of image    
 
@@ -187,7 +193,7 @@ end
         end
         s = regionprops(blood_vessel(:,:,1), 'Centroid');
         BVC = 1;
-        imshow(blood_vessel(:,:,i));
+       % imshow(blood_vessel(:,:,i)); % commented out for Audi Presentation
         number = 0;     
 end
 
